@@ -1,2 +1,2 @@
-# vue-source
-Vue source code study
+# vue-lab
+Vue research laboratory
