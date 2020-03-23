@@ -1,4 +1,4 @@
-# Vue 选项的规范化
+# Vue 初始化之选项规范化
 
 ## mergeOptions 函数的三个参数
 
@@ -16,7 +16,7 @@ vm.$options = mergeOptions(
 
 传递给 mergeOptions 函数的三个参数到底是什么。
 
-其中第一个参数是通过调用一个函数得到的，这个函数叫做 resolveConstructorOptions，并将 vm.constructor 作为参数传递进去。第二个参数 options 就是我们调用 Vue 构造函数时透传进来的对象，第三个参数是当前 Vue 实例，现在我们逐一去看。
+其中第一个参数是通过调用一个函数得到的，这个函数叫做 resolveConstructorOptions，并将 `vm.constructor` 作为参数传递进去。第二个参数 options 就是我们调用 Vue 构造函数时透传进来的对象，第三个参数是当前 Vue 实例，现在我们逐一去看。
 
 resolveConstructorOptions 是一个函数，这个函数就声明在 core/instance/init.js 文件中，如下：
 
@@ -46,37 +46,37 @@ export function resolveConstructorOptions (Ctor: Class<Component>) {
 }
 ```
 
-在具体去看代码之前，大家能否通过这个函数的名字猜一猜这个函数的作用呢？其名字是 resolve Constructor Options 那么这个函数是不是用来 解析构造者的 options 的呢？答案是：对，就是干这个的。接下来我们就具体看一下它是怎么做的，首先第一句：
+在具体去看代码之前，大家能否通过这个函数的名字猜一猜这个函数的作用呢？其名字是 resolve Constructor Options 那么这个函数是不是用来**解析构造者的 options**的呢？答案是：对，就是干这个的。接下来我们就具体看一下它是怎么做的，首先第一句：
 
 ```js
 let options = Ctor.options
 ```
 
-其中 Ctor 即传递进来的参数 vm.constructor，在我们的例子中他就是 Vue 构造函数，可能有的同学会问：难道它还有不是 Vue 构造函数的时候吗？当然，当你使用 Vue.extend 创造一个子类并使用子类创造实例时，那么 vm.constructor 就不是 Vue 构造函数，而是子类，比如：
+其中 Ctor 即传递进来的参数 `vm.constructor`，在我们的例子中他就是 Vue 构造函数，可能有的同学会问：难道它还有不是 Vue 构造函数的时候吗？当然，当你使用 Vue.extend 创造一个子类并使用子类创造实例时，那么 `vm.constructor` 就不是 Vue 构造函数，而是子类，比如：
 
 ```js
 const Sub = Vue.extend()
 const s = new Sub()
 ```
 
-那么 s.constructor 自然就是 Sub 而非 Vue，大家知道这一点即可，但在我们的例子中，这里的 Ctor 就是 Vue 构造函数，而有关于 Vue.extend 的东西，我们后面会专门讨论的。
+那么 `s.constructor` 自然就是 Sub 而非 Vue，大家知道这一点即可，但在我们的例子中，这里的 Ctor 就是 Vue 构造函数，而有关于 `Vue.extend` 的东西，我们后面会专门讨论的。
 
-所以，Ctor.options 就是 Vue.options，然后我们再看 resolveConstructorOptions 的返回值是什么？如下：
+所以，`Ctor.options` 就是 `Vue.options`，然后我们再看 resolveConstructorOptions 的返回值是什么？如下：
 
 ```js
 return options
 ```
 
-也就是把 Vue.options 返回回去了，所以这个函数的确就像他的名字那样，是用来获取构造者的 options 的。不过同学们可能注意到了，resolveConstructorOptions 函数的第一句和最后一句代码中间还有一坨包裹在 if 语句块中的代码，那么这坨代码是干什么的呢？
+也就是把 `Vue.options` 返回回去了，所以这个函数的确就像他的名字那样，是用来获取构造者的 options 的。不过同学们可能注意到了，resolveConstructorOptions 函数的第一句和最后一句代码中间还有一坨包裹在 if 语句块中的代码，那么这坨代码是干什么的呢？
 
-我可以很明确地告诉大家，这里水稍微有那么点深，比如 if 语句的判断条件 Ctor.super，super 这是子类才有的属性，如下：
+我可以很明确地告诉大家，这里水稍微有那么点深，比如 if 语句的判断条件 `Ctor.super`，super 这是子类才有的属性，如下：
 
 ```js
 const Sub = Vue.extend()
 console.log(Sub.super)  // Vue
 ```
 
-也就是说，super 这个属性是与 Vue.extend 有关系的，事实也的确如此。除此之外判断分支内的第一句代码：
+也就是说，super 这个属性是与 `Vue.extend` 有关系的，事实也的确如此。除此之外判断分支内的第一句代码：
 
 ```js
 const superOptions = resolveConstructorOptions(Ctor.super)
@@ -89,9 +89,9 @@ const superOptions = resolveConstructorOptions(Ctor.super)
 const modifiedOptions = resolveModifiedOptions(Ctor)
 ```
 
-我们要注意的是注释，有兴趣的同学可以根据注释中括号内的 issue 索引去搜一下相关的问题，这句代码是用来解决使用 vue-hot-reload-api 或者 vue-loader 时产生的一个 bug 的。
+我们要注意的是注释，有兴趣的同学可以根据注释中括号内的 issue 索引去搜一下相关的问题，这句代码是用来解决使用 `vue-hot-reload-api` 或者 `vue-loader` 时产生的一个 bug 的。
 
-现在大家知道这里的水有多深了吗？关于这些问题，我们在讲 Vue.extend 时都会给大家一一解答，不过有一个因素从来没有变，那就是 resolveConstructorOptions 这个函数的作用永远都是用来获取当前实例构造者的 options 属性的，即使 if 判断分支内也不例外，因为 if 分支只不过是处理了 options，最终返回的永远都是 options。
+现在大家知道这里的水有多深了吗？关于这些问题，我们在讲 `Vue.extend` 时都会给大家一一解答，不过有一个因素从来没有变，那就是 resolveConstructorOptions 这个函数的作用永远都是用来获取当前实例构造者的 options 属性的，即使 if 判断分支内也不例外，因为 if 分支只不过是处理了 options，最终返回的永远都是 options。
 
 所以根据我们的例子，resolveConstructorOptions 函数目前并不会走 if 判断分支，即此时这个函数相当于：
 
@@ -102,7 +102,7 @@ export function resolveConstructorOptions (Ctor: Class<Component>) {
 }
 ```
 
-所以，根据我们的例子，此时的 mergeOptions 函数的第一个参数就是 Vue.options，那么大家还记得 Vue.options 长成什么样子吗？不记得也没关系，这就得益于我们整理的 附录/Vue构造函数整理-全局API 了，通过查看我们可知 Vue.options 如下：
+所以，根据我们的例子，此时的 mergeOptions 函数的第一个参数就是 `Vue.options`，那么大家还记得 `Vue.options` 长成什么样子吗？不记得也没关系，这就得益于我们整理的 附录/Vue构造函数整理-全局API 了，通过查看我们可知 `Vue.options` 如下：
 
 ```js
 Vue.options = {
@@ -183,7 +183,12 @@ vm.$options = mergeOptions(
  */
  ```
 
-合并两个选项对象为一个新的对象，这个函数在实例化和继承的时候都有用到，这里要注意两点：第一，这个函数将会产生一个新的对象；第二，这个函数不仅仅在实例化对象(即_init方法中)的时候用到，在继承(Vue.extend)中也有用到，所以这个函数应该是一个用来合并两个选项对象为一个新对象的通用程序。
+合并两个选项对象为一个新的对象，这个函数在实例化和继承的时候都有用到，这里要注意两点：
+
+- 第一，这个函数将会产生一个新的对象；
+- 第二，这个函数不仅仅在实例化对象(即`_init`方法中)的时候用到，在继承(`Vue.extend`)中也有用到。
+
+所以这个函数应该是一个用来合并两个选项对象为一个新对象的通用程序。
 
 所以我们现在就看看它是怎么去合并两个选项对象的，找到 mergeOptions 函数，开始的一段代码如下：
 
@@ -193,7 +198,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-在非生产环境下，会以 child 为参数调用 checkComponents 方法，我们看看 checkComponents 是做什么的，这个方法同样定义在 core/util/options.js 文件中，内容如下：
+在非生产环境下，会以 child(new Vue透传进来的选项) 为参数调用 checkComponents 方法，我们看看 checkComponents 是做什么的，这个方法同样定义在 core/util/options.js 文件中，内容如下：
 
 ```js
 /**
@@ -206,7 +211,7 @@ function checkComponents (options: Object) {
 }
 ```
 
-由注释可知，这个方法是用来校验组件的名字是否符合要求的，首先 checkComponents 方法使用一个 for in 循环遍历 options.components 选项，将每个子组件的名字作为参数依次传递给 validateComponentName 函数，所以 validateComponentName 函数才是真正用来校验名字的函数，该函数就定义在 checkComponents 函数下方，源码如下：
+由注释可知，这个方法是用来校验组件的名字是否符合要求的，首先 checkComponents 方法使用一个 `for in` 循环遍历 `options.components` 选项，将每个子组件的名字作为参数依次传递给 validateComponentName 函数，所以 validateComponentName 函数才是真正用来校验名字的函数，该函数就定义在 checkComponents 函数下方，源码如下：
 
 ```js
 export function validateComponentName (name: string) {
@@ -229,11 +234,11 @@ export function validateComponentName (name: string) {
 validateComponentName 函数由两个 if 语句块组成，所以可想而知，对于组件的名字要满足这两条规则才行，这两条规则就是这两个 if 分支的条件语句：
 
 1. 组件的名字要满足正则表达式：`/^[a-zA-Z][\w-]*$/`
-2. 要满足：条件 isBuiltInTag(name) || config.isReservedTag(name) 不成立
+2. 要满足：条件 `isBuiltInTag(name) || config.isReservedTag(name)` 不成立
 
-对于第一条规则，Vue 限定组件的名字由普通的字符和中横线(-)组成，且必须以字母开头。
+对于第一条规则，Vue 限定组件的名字由普通的字符和中横线(`-`)组成，且必须以字母开头。
 
-对于第二条规则，首先将 options.components 对象的 key 小写化作为组件的名字，然后以组件的名字为参数分别调用两个方法：isBuiltInTag 和 config.isReservedTag，其中 isBuiltInTag 方法的作用是用来检测你所注册的组件是否是内置的标签，这个方法可以在 shared/util.js 文件工具方法全解 中查看其实现，于是我们可知：slot 和 component 这两个名字被 Vue 作为内置标签而存在的，你是不能够使用的，比如这样：
+对于第二条规则，首先将 `options.components` 对象的 key 小写化作为组件的名字，然后以组件的名字为参数分别调用两个方法：`isBuiltInTag` 和 `config.isReservedTag`，其中 isBuiltInTag 方法的作用是用来检测你所注册的组件是否是内置的标签，这个方法可以在 shared/util.js 文件工具方法全解 中查看其实现，于是我们可知：slot 和 component 这两个名字被 Vue 作为内置标签而存在的，你是不能够使用的，比如这样：
 
 ```js
 new Vue({
@@ -245,7 +250,7 @@ new Vue({
 
 你将会得到一个警告，该警告的内容就是 checkComponents 方法中的 warn 文案：
 
-除了检测注册的组件名字是否为内置的标签之外，还会检测是否是保留标签，即通过 config.isReservedTag 方法进行检测，大家是否还记得 config.isReservedTag 在哪里被赋值的？前面我们讲到过在 platforms/web/runtime/index.js 文件中有这样一段代码：
+除了检测注册的组件名字是否为内置的标签之外，还会检测是否是保留标签，即通过 `config.isReservedTag` 方法进行检测，大家是否还记得 `config.isReservedTag` 在哪里被赋值的？前面我们讲到过在 platforms/web/runtime/index.js 文件中有这样一段代码：
 
 ```js
 // install platform specific utils
@@ -262,7 +267,7 @@ Vue.config.isUnknownElement = isUnknownElement
 Vue.config.isReservedTag = isReservedTag
 ```
 
-就是在给 config.isReservedTag 赋值，其值为来自于 platforms/web/util/element.js 文件的 isReservedTag 函数，大家可以在附录 platforms/web/util 目录下的工具方法全解中查看该方法的作用及实现，可知在 Vue 中 html 标签和部分 SVG 标签被认为是保留的。所以这段代码是在保证选项被合并前的合理合法。最后大家注意一点，这些工作是在非生产环境下做的，所以在非生产环境下开发者就能够发现并修正这些问题，所以在生产环境下就不需要再重复做一次校验检测了。
+就是在给 `config.isReservedTag` 赋值，其值为来自于 platforms/web/util/element.js 文件的 isReservedTag 函数，大家可以在附录 platforms/web/util 目录下的工具方法全解中查看该方法的作用及实现，可知在 Vue 中 `html` 标签和部分 `SVG` 标签被认为是保留的。所以这段代码是在保证选项被合并前的合理合法。最后大家注意一点，这些工作是在非生产环境下做的，所以在非生产环境下开发者就能够发现并修正这些问题，所以在生产环境下就不需要再重复做一次校验检测了。
 
 另外要说一点，我们的例子中并没有使用 components 选项，但是这里还是给大家顺便介绍了一下。如果按照我们的例子的话，mergeOptions 函数中的很多代码都不会执行，但是为了保证让大家理解整个选项合并所做的事情，这里都会有所介绍。
 
@@ -276,7 +281,7 @@ if (typeof child === 'function') {
 }
 ```
 
-这说明 child 参数除了是普通的选项对象外，还可以是一个函数，如果是函数的话就取该函数的 options 静态属性作为新的 child，我们想一想什么样的函数具有 options 静态属性呢？现在我们知道 Vue 构造函数本身就拥有这个属性，其实通过 Vue.extend 创造出来的子类也是拥有这个属性的。所以这就允许我们在进行选项合并的时候，去合并一个 Vue 实例构造者的选项了。
+这说明 child(new Vue透传进来的选项) 参数除了是普通的选项对象外，还可以是一个函数，如果是函数的话就取该函数的 options 静态属性作为新的 child，我们想一想什么样的函数具有 options 静态属性呢？现在我们知道 Vue 构造函数本身就拥有这个属性，其实通过 `Vue.extend` 创造出来的子类也是拥有这个属性的。所以这就允许我们在进行选项合并的时候，去合并一个 Vue 实例构造者的选项了。
 
 ## 规范化 props（normalizeProps）
 
@@ -785,9 +790,9 @@ if (!child._base) {
 }
 ```
 
-很显然，这段代码是处理 extends 选项和 mixins 选项的，首先判断 child.extends 是否存在，如果存在的话就递归调用 mergeOptions 函数将 parent 与 child.extends 进行合并，并将结果作为新的 parent。这里要注意，我们之前说过 mergeOptions 函数将会产生一个新的对象，所以此时的 parent 已经被新的对象重新赋值了。
+很显然，这段代码是处理 extends 选项和 mixins 选项的，首先判断 `child.extends` 是否存在，如果存在的话就递归调用 mergeOptions 函数将 parent 与 `child.extends` 进行合并，并将结果作为新的 parent。这里要注意，我们之前说过 mergeOptions 函数将会产生一个新的对象，所以此时的 parent 已经被新的对象重新赋值了。
 
-接着检测 child.mixins 选项是否存在，如果存在则使用同样的方式进行操作，不同的是，由于 mixins 是一个数组所以要遍历一下。
+接着检测 `child.mixins` 选项是否存在，如果存在则使用同样的方式进行操作，不同的是，由于 mixins 是一个数组所以要遍历一下。
 
 经过了上面两个判断分支，此时的 parent 很可能已经不是当初的 parent 的，而是经过合并后产生的新对象。关于 extends 与 mixins 的更多东西以及这里递归调用 mergeOptions 所产生的影响，等我们看完整个 mergeOptions 函数对选项的处理之后会更容易理解，因为现在我们还不清楚 mergeOptions 到底怎么合并选项，等我们了解了 mergeOptions 的作用之后再回头来看一下这段代码。
 

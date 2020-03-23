@@ -1,4 +1,4 @@
-# Vue 选项的合并
+# Vue 初始化之选项合并
 
 上一章节我们了解了 Vue 对选项的规范化，而接下来才是真正的合并阶段，我们继续看 mergeOptions 函数的代码，接下来的一段代码如下：
 
@@ -22,7 +22,7 @@ return options
 
 这段代码的第一句和最后一句说明了 mergeOptions 函数的的确确返回了一个新的对象，因为第一句代码定义了一个常量 options，而最后一句代码将其返回，所以我们自然可以预估到中间的代码是在充实 options 常量，而 options 常量就应该是最终合并之后的选项，我们看看它是怎么产生的。
 
-首先我们明确一下代码结构，这里有两个 for in 循环以及一个名字叫 mergeField 的函数，而且我们可以发现这两个 for in 循环中都调用了 mergeField 函数。我们先看第一段 for in 代码：
+首先我们明确一下代码结构，这里有两个 `for in` 循环以及一个名字叫 mergeField 的函数，而且我们可以发现这两个 for in 循环中都调用了 mergeField 函数。我们先看第一段 for in 代码：
 
 ```js
 for (key in parent) {
@@ -30,7 +30,7 @@ for (key in parent) {
 }
 ```
 
-这段 for in 用来遍历 parent，并且将 parent 对象的键作为参数传递给 mergeField 函数，大家应该知道这里的 key 是什么，假如 parent 就是 Vue.options：
+这段 for in 用来遍历 parent，并且将 parent 对象的键作为参数传递给 mergeField 函数，大家应该知道这里的 key 是什么，假如 parent 就是 `Vue.options`：
 
 ```js
 Vue.options = {
@@ -92,7 +92,7 @@ mergeField 函数只有两句代码，第一句代码定义了一个常量 strat
 const strats = config.optionMergeStrategies
 ```
 
-这句代码就定义了 strats 变量，且它是一个常量，这个常量的值为 config.optionMergeStrategies，这个 config 对象是全局配置对象，来自于 core/config.js 文件，此时 config.optionMergeStrategies 还只是一个空的对象。注意一下这里的一段注释：选项覆盖策略是处理如何将父选项值和子选项值合并到最终值的函数。也就是说 config.optionMergeStrategies 是一个合并选项的策略对象，这个对象下包含很多函数，这些函数就可以认为是合并特定选项的策略。这样不同的选项使用不同的合并策略，如果你使用自定义选项，那么你也可以自定义该选项的合并策略，只需要在 Vue.config.optionMergeStrategies 对象上添加与自定义选项同名的函数就行。而这就是 Vue 文档中提过的全局配置：[optionMergeStrategies](https://cn.vuejs.org/v2/api/#optionMergeStrategies)。
+这句代码就定义了 strats 变量，且它是一个常量，这个常量的值为 `config.optionMergeStrategies`，这个 config 对象是全局配置对象，来自于 core/config.js 文件，此时 `config.optionMergeStrategies` 还只是一个空的对象。注意一下这里的一段注释：选项覆盖策略是处理如何将父选项值和子选项值合并到最终值的函数。也就是说 `config.optionMergeStrategies` 是一个合并选项的策略对象，这个对象下包含很多函数，这些函数就可以认为是合并特定选项的策略。这样不同的选项使用不同的合并策略，如果你使用自定义选项，那么你也可以自定义该选项的合并策略，只需要在 `Vue.config.optionMergeStrategies` 对象上添加与自定义选项同名的函数就行。而这就是 Vue 文档中提过的全局配置：[optionMergeStrategies](https://cn.vuejs.org/v2/api/#optionMergeStrategies)。
 
 ## 选项 el、propsData 的合并策略
 
@@ -143,7 +143,7 @@ var ChildComponent = {
 new Vue({
   el: '#app',
   data: {
-    test: 1
+    message: 'Hello Vue!'
   },
   components: {
     ChildComponent
@@ -160,7 +160,7 @@ function mergeField (key) {
 }
 ```
 
-函数体的第二句代码中在调用策略函数的时候，第三个参数 vm 就是我们在策略函数中使用的那个 vm，那么这里的 vm 是谁呢？它实际上是从 mergeOptions 函数透传过来的，因为 mergeOptions 函数的第三个参数就是 vm。我们知道在 _init 方法中调用 mergeOptions 函数时第三个参数就是当前 Vue 实例：
+函数体的第二句代码中在调用策略函数的时候，第三个参数 vm 就是我们在策略函数中使用的那个 vm，那么这里的 vm 是谁呢？它实际上是从 mergeOptions 函数透传过来的，因为 mergeOptions 函数的第三个参数就是 vm。我们知道在 `_init` 方法中调用 mergeOptions 函数时第三个参数就是当前 Vue 实例：
 
 ```js
 // _init 方法中调用 mergeOptions 函数，第三个参数是 Vue 实例
@@ -171,7 +171,7 @@ vm.$options = mergeOptions(
 )
 ```
 
-所以我们可以理解为：策略函数中的 vm 来自于 mergeOptions 函数的第三个参数。所以当调用 mergeOptions 函数且不传递第三个参数的时候，那么在策略函数中就拿不到 vm 参数。所以我们可以猜测到一件事，那就是 mergeOptions 函数除了在 _init 方法中被调用之外，还在其他地方被调用，且没有传递第三个参数。那么到底是在哪里被调用的呢？这里可以先明确地告诉大家，就是在 Vue.extend 方法中被调用的，大家可以打开 core/global-api/extend.js 文件找到 Vue.extend 方法，其中有这么一段代码：
+所以我们可以理解为：策略函数中的 vm 来自于 mergeOptions 函数的第三个参数。所以当调用 mergeOptions 函数且不传递第三个参数的时候，那么在策略函数中就拿不到 vm 参数。所以我们可以猜测到一件事，那就是 mergeOptions 函数除了在 `_init` 方法中被调用之外，还在其他地方被调用，且没有传递第三个参数。那么到底是在哪里被调用的呢？这里可以先明确地告诉大家，就是在 `Vue.extend` 方法中被调用的，大家可以打开 core/global-api/extend.js 文件找到 `Vue.extend` 方法，其中有这么一段代码：
 
 ```js
 Sub.options = mergeOptions(
@@ -180,13 +180,13 @@ Sub.options = mergeOptions(
 )
 ```
 
-可以发现，此时调用 mergeOptions 函数就没有传递第三个参数，也就是说通过 Vue.extend 创建子类的时候 mergeOptions 会被调用，此时策略函数就拿不到第三个参数。
+可以发现，此时调用 mergeOptions 函数就没有传递第三个参数，也就是说通过 `Vue.extend` 创建子类的时候 mergeOptions 会被调用，此时策略函数就拿不到第三个参数。
 
-所以现在就比较明朗了，在策略函数中通过判断是否存在 vm 就能够得知 mergeOptions 是在实例化时调用(使用 new 操作符走 _init 方法)还是在继承时调用(Vue.extend)，而子组件的实现方式就是通过实例化子类完成的，子类又是通过 Vue.extend 创造出来的，所以我们就能通过对 vm 的判断而得知是否是子组件了。
+所以现在就比较明朗了，在策略函数中通过判断是否存在 vm 就能够得知 mergeOptions 是在实例化时调用(使用 new 操作符走 `_init` 方法)还是在继承时调用(`Vue.extend`)，而子组件的实现方式就是通过实例化子类完成的，子类又是通过 `Vue.extend` 创造出来的，所以我们就能通过对 vm 的判断而得知是否是子组件了。
 
 所以最终的结论就是：如果策略函数中拿不到 vm 参数，那么处理的就是子组件的选项，花了大量的口舌解释了策略函数中判断 vm 的意义，实际上这些解释是必要的。
 
-我们接着看 strats.el 和 strats.propsData 策略函数的代码，在 if 判断分支下面，直接调用了 defaultStrat 函数并返回：
+我们接着看 `strats.el` 和 `strats.propsData` 策略函数的代码，在 if 判断分支下面，直接调用了 defaultStrat 函数并返回：
 
 ```js
 return defaultStrat(parent, child)
@@ -207,7 +207,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
 
 实际上 defaultStrat 函数就如同它的名字一样，它是一个默认的策略，当一个选项不需要特殊处理的时候就使用默认的合并策略，它的逻辑很简单：只要子选项不是 undefined 那么就是用子选项，否则使用父选项。
 
-但是大家还要注意一点，strats.el 和 strats.propsData 这两个策略函数是只有在非生产环境才有的，在生产环境下访问这两个函数将会得到 undefined，那这个时候 mergeField 函数的第一句代码就起作用了：
+但是大家还要注意一点，`strats.el` 和 `strats.propsData` 这两个策略函数是只有在非生产环境才有的，在生产环境下访问这两个函数将会得到 undefined，那这个时候 mergeField 函数的第一句代码就起作用了：
 
 ```js
 // 当一个选项没有对应的策略函数时，使用默认策略
@@ -276,13 +276,13 @@ return mergeDataOrFn(parentVal, childVal)
 return mergeDataOrFn(parentVal, childVal)
 ```
 
-上面的情况是在 strats.data 策略函数拿不到 vm 参数时的情况，如果拿到了 vm 参数，那么说明处理的选项不是子组件的选项，而是正常使用 new 操作符创建实例时的选项，这个时候则直接返回 mergeDataOrFn 的函数执行结果，但是会多透传一个参数 vm：
+上面的情况是在 `strats.data` 策略函数拿不到 vm 参数时的情况，如果拿到了 vm 参数，那么说明处理的选项不是子组件的选项，而是正常使用 new 操作符创建实例时的选项，这个时候则直接返回 mergeDataOrFn 的函数执行结果，但是会多透传一个参数 vm：
 
 ```js
 return mergeDataOrFn(parentVal, childVal, vm)
 ```
 
-通过上面的分析我们得知一件事，即 strats.data 策略函数无论合并处理的是子组件的选项还是非子组件的选项，其最终都是调用 mergeDataOrFn 函数进行处理的，并且以 mergeDataOrFn 函数的返回值作为策略函数的最终返回值。有一点不同的是在处理非子组件选项的时候所调用的 mergeDataOrFn 函数多传递了一个参数 vm。所以接下来我们要做的事儿就是看看 mergeDataOrFn 的代码，看一看它的返回值是什么，因为它的返回值就等价于 strats.data 策略函数的返回值。mergeDataOrFn 函数的源码如下：
+通过上面的分析我们得知一件事，即 `strats.data` 策略函数无论合并处理的是子组件的选项还是非子组件的选项，其最终都是调用 mergeDataOrFn 函数进行处理的，并且以 mergeDataOrFn 函数的返回值作为策略函数的最终返回值。有一点不同的是在处理非子组件选项的时候所调用的 mergeDataOrFn 函数多传递了一个参数 vm。所以接下来我们要做的事儿就是看看 mergeDataOrFn 的代码，看一看它的返回值是什么，因为它的返回值就等价于 `strats.data` 策略函数的返回值。mergeDataOrFn 函数的源码如下：
 
 ```js
 /**
@@ -331,15 +331,15 @@ export function mergeDataOrFn (
 }
 ```
 
-这个函数整体由 if 判断分支语句块组成，首先对 vm 进行判断，我们知道无论是子组件选项还是非子组件选项 strats.data 策略函数都是通过调用 mergeDataOrFn 函数来完成处理的，且处理非子组件选项的时候要比处理子组件选项时多传递了一个参数 vm，这就使得 mergeDataOrFn 也能通过是否有 vm 来区分处理的是不是子组件选项。如果没有拿到 vm 参数的话，那说明处理的是子组件选项，程序会走 if 分支，实际上我们可以看到这里有段注释：
+这个函数整体由 if 判断分支语句块组成，首先对 vm 进行判断，我们知道无论是子组件选项还是非子组件选项 `strats.data` 策略函数都是通过调用 mergeDataOrFn 函数来完成处理的，且处理非子组件选项的时候要比处理子组件选项时多传递了一个参数 vm，这就使得 mergeDataOrFn 也能通过是否有 vm 来区分处理的是不是子组件选项。如果没有拿到 vm 参数的话，那说明处理的是子组件选项，程序会走 if 分支，实际上我们可以看到这里有段注释：
 
 ```js
 // in a Vue.extend merge, both should be functions
 ```
 
-这段注释的意思是：选项是在调用 Vue.extend 函数时进行合并处理的，此时父子 data 选项都应该是函数。
+这段注释的意思是：选项是在调用 `Vue.extend` 函数时进行合并处理的，此时父子 data 选项都应该是函数。
 
-这再次说明了，当拿不到 vm 这个参数的时候，合并操作是在 Vue.extend 中进行的，也就是在处理子组件的选项。而且此时 childVal 和 parentVal 都应该是函数，那么这里真的能保证 childVal 和 parentVal 都是函数了吗？其实是可以的，我们后面会讲到。
+这再次说明了，当拿不到 vm 这个参数的时候，合并操作是在 `Vue.extend` 中进行的，也就是在处理子组件的选项。而且此时 childVal 和 parentVal 都应该是函数，那么这里真的能保证 childVal 和 parentVal 都是函数了吗？其实是可以的，我们后面会讲到。
 
 在这句注释的下面是这段代码：
 
@@ -358,7 +358,7 @@ if (!parentVal) {
 Vue.extend({})
 ```
 
-我们使用 Vue.extend 函数创建子类的时候传递的子组件选项是一个空对象，即没有 data 选项，那么此时 parentVal 实际上就是 Vue.options，由于 Vue.options 上也没有 data 这个属性，所以压根就不会执行 strats.data 策略函数，也就更不会执行 mergeDataOrFn 函数，有的同学可能会问：既然都没有执行，那么这里的 return parentVal 是不是多余的？当然不多余，因为 parentVal 存在有值的情况。那么什么时候才会出现 childVal 不存在但是 parentVal 存在的情况呢？看下面的代码：
+我们使用 `Vue.extend` 函数创建子类的时候传递的子组件选项是一个空对象，即没有 data 选项，那么此时 parentVal 实际上就是 Vue.options，由于 `Vue.options` 上也没有 data 这个属性，所以压根就不会执行 strats.data 策略函数，也就更不会执行 mergeDataOrFn 函数，有的同学可能会问：既然都没有执行，那么这里的 return parentVal 是不是多余的？当然不多余，因为 parentVal 存在有值的情况。那么什么时候才会出现 childVal 不存在但是 parentVal 存在的情况呢？看下面的代码：
 
 ```js
 const Parent = Vue.extend({
@@ -372,7 +372,7 @@ const Parent = Vue.extend({
 const Child = Parent.extend({})
 ```
 
-上面的代码中 Parent 类继承了 Vue，而 Child 又继承了 Parent，关键就在于我们使用 Parent.extend 创建 Child 子类的时候，对于 Child 类来讲，childVal 不存在，因为我们没有传递 data 选项，但是 parentVal 存在，即 Parent.options 下的 data 选项，那么 Parent.options 是哪里来的呢？实际就是 Vue.extend 函数内使用 mergeOptions 生成的，所以此时 parentVal 必定是个函数，因为 strats.data 策略函数在处理 data 选项后返回的始终是一个函数。
+上面的代码中 Parent 类继承了 Vue，而 Child 又继承了 Parent，关键就在于我们使用 `Parent.extend` 创建 Child 子类的时候，对于 Child 类来讲，childVal 不存在，因为我们没有传递 data 选项，但是 parentVal 存在，即 `Parent.options` 下的 data 选项，那么 `Parent.options` 是哪里来的呢？实际就是 `Vue.extend` 函数内使用 mergeOptions 生成的，所以此时 parentVal 必定是个函数，因为 `strats.data` 策略函数在处理 data 选项后返回的始终是一个函数。
 
 所以现在再看这段代码就清晰多了：
 
@@ -385,7 +385,7 @@ if (!parentVal) {
 }
 ```
 
-由于 childVal 和 parentVal 必定会有其一，否则便不会执行 strats.data 策略函数，所以上面判断的意思就是：如果没有子选项则使用父选项，没有父选项就直接使用子选项，且这两个选项都能保证是函数，如果父子选项同时存在，则代码继续进行，将执行下面的代码：
+由于 childVal 和 parentVal 必定会有其一，否则便不会执行 `strats.data` 策略函数，所以上面判断的意思就是：如果没有子选项则使用父选项，没有父选项就直接使用子选项，且这两个选项都能保证是函数，如果父子选项同时存在，则代码继续进行，将执行下面的代码：
 
 ```js
 // when parentVal & childVal are both present,
@@ -403,9 +403,9 @@ return function mergedDataFn () {
 
 也就是说，当父子选项同时存在，那么就返回一个函数 mergedDataFn，注意：此时代码运行就结束了，因为函数已经返回了(return)，至于 mergedDataFn 函数里面又返回了 mergeData 函数的执行结果这句代码目前还没有执行。
 
-以上就是 strats.data 策略函数在处理子组件的 data 选项时所做的事，我们可以发现 mergeDataOrFn 函数在处理子组件选项时返回的总是一个函数，这也就间接导致 strats.data 策略函数在处理子组件选项时返回的也总是一个函数。
+以上就是 `strats.data` 策略函数在处理子组件的 data 选项时所做的事，我们可以发现 mergeDataOrFn 函数在处理子组件选项时返回的总是一个函数，这也就间接导致 `strats.data` 策略函数在处理子组件选项时返回的也总是一个函数。
 
-说完了处理子组件选项的情况，我们再看看处理非子组件选项的情况，也就是使用 new 操作符创建实例时的情况，此时程序直接执行 strats.data 函数的最后一句代码：
+说完了处理子组件选项的情况，我们再看看处理非子组件选项的情况，也就是使用 new 操作符创建实例时的情况，此时程序直接执行 `strats.data` 函数的最后一句代码：
 
 ```js
 return mergeDataOrFn(parentVal, childVal, vm)
@@ -645,19 +645,19 @@ mergeData 的具体做法就是像上面 mergeData 函数的代码段中所注�
 
 - 其他情况不做处理。
 
-上面提到了一个 set 函数，根据 options.js 文件头部的引用关系可知：这个函数来自于 core/observer/index.js 文件，实际上这个 set 函数就是 Vue 暴露给我们的全局API Vue.set。在这里由于我们还没有讲到 set 函数的具体实现，所以你就可以简单理解为 set 函数的功能与我们前面遇到过的 extend 工具函数功能相似即可。
+上面提到了一个 set 函数，根据 options.js 文件头部的引用关系可知：这个函数来自于 core/observer/index.js 文件，实际上这个 set 函数就是 Vue 暴露给我们的全局API `Vue.set`。在这里由于我们还没有讲到 set 函数的具体实现，所以你就可以简单理解为 set 函数的功能与我们前面遇到过的 extend 工具函数功能相似即可。
 
 所以我们知道了 mergeData 函数的执行结果才是真正的数据对象，由于 mergedDataFn 和 mergedInstanceDataFn 这两个函数的返回值就是 mergeData 函数的执行结果，所以 mergedDataFn 和 mergedInstanceDataFn 函数的执行将会得到数据对象，我们还知道 data 选项会被 mergeOptions 处理成函数，比如处理成 mergedInstanceDataFn，所以：最终得到的 data 选项是一个函数，且该函数的执行结果就是最终的数据对象。
 
 最后我们对大家经常会产生疑问的地方做一些补充：
 
-### 一、为什么最终 strats.data 会被处理成一个函数
+### 一、为什么最终 `strats.data` 会被处理成一个函数
 
-这是因为，通过函数返回数据对象，保证了每个组件实例都有一个唯一的数据副本，避免了组件间数据互相影响。后面讲到 Vue 的初始化的时候大家会看到，在初始化数据状态的时候，就是通过执行 strats.data 函数来获取数据并对其进行处理的。
+这是因为，通过函数返回数据对象，保证了每个组件实例都有一个唯一的数据副本，避免了组件间数据互相影响。后面讲到 Vue 的初始化的时候大家会看到，在初始化数据状态的时候，就是通过执行 `strats.data` 函数来获取数据并对其进行处理的。
 
 ### 二、为什么不在合并阶段就把数据合并好，而是要等到初始化的时候再合并数据
 
-这个问题是什么意思呢？我们知道在合并阶段 strats.data 将被处理成一个函数，但是这个函数并没有被执行，而是到了后面初始化的阶段才执行的，这个时候才会调用 mergeData 对数据进行合并处理，那这么做的目的是什么呢？
+这个问题是什么意思呢？我们知道在合并阶段 `strats.data` 将被处理成一个函数，但是这个函数并没有被执行，而是到了后面初始化的阶段才执行的，这个时候才会调用 mergeData 对数据进行合并处理，那这么做的目的是什么呢？
 
 其实这么做是有原因的，后面讲到 Vue 的初始化的时候，大家就会发现 inject 和 props 这两个选项的初始化是先于 data 选项的，这就保证了我们能够使用 props 初始化 data 中的数据，如下：
 
@@ -731,7 +731,7 @@ return function mergedDataFn () {
 }
 ```
 
-注意这里的 childVal.call(this, this) 和 parentVal.call(this, this)，关键在于 call(this, this)，可以看到，第一个 this 指定了 data 函数的作用域，而第二个 this 就是传递给 data 函数的参数。
+注意这里的 `childVal.call(this, this)` 和 `parentVal.call(this, this)`，关键在于 `call(this, this)`，可以看到，第一个 this 指定了 data 函数的作用域，而第二个 this 就是传递给 data 函数的参数。
 
 当然了仅仅在这里这么做是不够的，比如 mergedDataFn 前面的代码：
 
@@ -748,7 +748,7 @@ if (!parentVal) {
 
 ## 生命周期钩子选项的合并策略
 
-现在我们看完了 strats.data 策略函数，我们继续按照 options.js 文件的顺序看代码，接下来的一段代码如下：
+现在我们看完了 `strats.data` 策略函数，我们继续按照 options.js 文件的顺序看代码，接下来的一段代码如下：
 
 ```js
 /**
@@ -850,7 +850,7 @@ new Vue({
 })
 ```
 
-如果以这段代码为例，那么对于 strats.created 策略函数来讲(注意这里的 strats.created 就是 mergeHooks)，childVal 就是我们例子中的 created 选项，它是一个函数。parentVal 应该是 Vue.options.created，但 Vue.options.created 是不存在的，所以最终经过 strats.created 函数的处理将返回一个数组：
+如果以这段代码为例，那么对于 `strats.created` 策略函数来讲(注意这里的 `strats.created` 就是 mergeHooks)，childVal 就是我们例子中的 created 选项，它是一个函数。parentVal 应该是 `Vue.options.created`，但 `Vue.options.created` 是不存在的，所以最终经过 `strats.created` 函数的处理将返回一个数组：
 
 ```js
 options.created = [
@@ -876,7 +876,7 @@ const Child = new Parent({
 })
 ```
 
-其中 Child 是使用 new Parent 生成的，所以对于 Child 来讲，childVal 是：
+其中 Child 是使用 `new Parent` 生成的，所以对于 Child 来讲，childVal 是：
 
 ```js
 created: function () {
@@ -884,7 +884,7 @@ created: function () {
 }
 ```
 
-而 parentVal 已经不是 Vue.options.created 了，而是 Parent.options.created，那么 Parent.options.created 是什么呢？它其实是通过 Vue.extend 函数内部的 mergeOptions 处理过的，所以它应该是这样的：
+而 parentVal 已经不是 `Vue.options.created` 了，而是 `Parent.options.created`，那么 `Parent.options.created` 是什么呢？它其实是通过 `Vue.extend` 函数内部的 mergeOptions 处理过的，所以它应该是这样的：
 
 ```js
 Parent.options.created = [
@@ -915,7 +915,7 @@ function mergeHook (
 }
 ```
 
-关键在这句：parentVal.concat(childVal)，将 parentVal 和 childVal 合并成一个数组。所以最终结果如下：
+关键在这句：`parentVal.concat(childVal)`，将 parentVal 和 childVal 合并成一个数组。所以最终结果如下：
 
 ```js
 [
@@ -1173,7 +1173,7 @@ strats.watch = function (
 }
 ```
 
-这一段代码的作用是在 strats 策略对象上添加 watch 策略函数。所以 strats.watch 策略函数应该是合并处理 watch 选项的。我们先看函数体开头的两句代码：
+这一段代码的作用是在 strats 策略对象上添加 watch 策略函数。所以 `strats.watch` 策略函数应该是合并处理 watch 选项的。我们先看函数体开头的两句代码：
 
 ```js
 // work around Firefox's Object.prototype.watch...
@@ -1263,7 +1263,7 @@ const v = new Sub({
 v.test = 2
 ```
 
-上面的代码中，当我们修改 v.test 的值时，两个观察 test 变化的函数都将被执行。
+上面的代码中，当我们修改 `v.test` 的值时，两个观察 test 变化的函数都将被执行。
 
 我们使用子类 Sub 创建了实例 v，对于实例 v 来讲，其 childVal 就是组件选项的 watch：
 
@@ -1300,7 +1300,7 @@ watch: {
 }
 ```
 
-但是 watch.test 并不一定总是数组，只有父选项(parentVal)也存在对该字段的观测时它才是数组，如下：
+但是 `watch.test` 并不一定总是数组，只有父选项(parentVal)也存在对该字段的观测时它才是数组，如下：
 
 ```js
 // 创建实例
@@ -1321,7 +1321,7 @@ const v = new Vue({
 v.test = 2
 ```
 
-我们直接使用 Vue 创建实例，这个时候对于实例 v 来说，父选项是 Vue.options，由于 Vue.options 并没有 watch 选项，所以逻辑将直接在 strats.watch 函数的这句话中返回：
+我们直接使用 Vue 创建实例，这个时候对于实例 v 来说，父选项是 `Vue.options`，由于 `Vue.options` 并没有 watch 选项，所以逻辑将直接在 `strats.watch` 函数的这句话中返回：
 
 ```js
 if (!parentVal) return childVal
@@ -1420,7 +1420,7 @@ strats.provide = mergeDataOrFn
 
 至此，我们大概介绍完了 Vue 对选项的处理，但留心的同学一定注意到了，options.js 文件的代码我们都基本逐行分析，唯独剩下一个函数我们始终没有提到，它就是 resolveAsset 函数。这个函数我们暂且不在这里讲，后面随着我们的深入，自然会再次碰到它，到那个时候应该是讲它的最好时机。
 
-## 再看 mixins 和 extends
+## 再看 `mixins` 和 `extends`
 
 在 Vue选项的规范化 一节中，我们讲到了 mergeOptions 函数中的如下这段代码：
 

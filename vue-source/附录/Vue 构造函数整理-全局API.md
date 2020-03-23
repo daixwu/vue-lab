@@ -14,6 +14,13 @@ Vue.util = {
 Vue.set = set
 Vue.delete = del
 Vue.nextTick = nextTick
+
+// 2.6 explicit observable API
+Vue.observable = <T>(obj: T): T => {
+  observe(obj)
+  return obj
+}
+
 Vue.options = {
   components: {
     KeepAlive

@@ -1,12 +1,20 @@
-# Vue 构造函数整理-原型
+# Vue 构造函数原型扩展
 
-这里是对 Vue 构造函数原型的整理，便于看源码时查看方法的对应位置。
+core/instance/index.js 为Vue 的出生文件，主要作用是定义 Vue 构造函数，并对其原型添加属性和方法，即实例属性和实例方法。这里是对 Vue 构造函数原型的整理，便于看源码时查看方法的对应位置。
+
+## initMixin(Vue)
+
+**Path**：src/core/instance/init.js
 
 ```js
-// initMixin(Vue)    src/core/instance/init.js **************************************************
 Vue.prototype._init = function (options?: Object) {}
+```
 
-// stateMixin(Vue)    src/core/instance/state.js **************************************************
+## stateMixin(Vue)
+
+**Path**：src/core/instance/state.js
+
+```js
 Vue.prototype.$data
 Vue.prototype.$props
 Vue.prototype.$set = set
@@ -16,19 +24,34 @@ Vue.prototype.$watch = function (
   cb: any,
   options?: Object
 ): Function {}
+```
 
-// eventsMixin(Vue)    src/core/instance/events.js **************************************************
+## eventsMixin(Vue)
+
+**Path**：src/core/instance/events.js
+
+```js
 Vue.prototype.$on = function (event: string | Array<string>, fn: Function): Component {}
 Vue.prototype.$once = function (event: string, fn: Function): Component {}
 Vue.prototype.$off = function (event?: string | Array<string>, fn?: Function): Component {}
 Vue.prototype.$emit = function (event: string): Component {}
+```
 
-// lifecycleMixin(Vue)    src/core/instance/lifecycle.js **************************************************
+## lifecycleMixin(Vue)
+
+**Path**：src/core/instance/lifecycle.js
+
+```js
 Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {}
 Vue.prototype.$forceUpdate = function () {}
 Vue.prototype.$destroy = function () {}
+```
 
-// renderMixin(Vue)    src/core/instance/render.js **************************************************
+## renderMixin(Vue)
+
+**Path**：src/core/instance/render.js
+
+```js
 // installRenderHelpers 函数中
 Vue.prototype._o = markOnce
 Vue.prototype._n = toNumber
@@ -45,10 +68,18 @@ Vue.prototype._v = createTextVNode
 Vue.prototype._e = createEmptyVNode
 Vue.prototype._u = resolveScopedSlots
 Vue.prototype._g = bindObjectListeners
+Vue.prototype._d = bindDynamicKeys
+Vue.prototype._p = prependModifier
+
 Vue.prototype.$nextTick = function (fn: Function) {}
 Vue.prototype._render = function (): VNode {}
+```
 
-// core/index.js 文件中
+## 其他
+
+**Path**：core/index.js
+
+```js
 Object.defineProperty(Vue.prototype, '$isServer', {
   get: isServerRendering
 })
@@ -59,8 +90,11 @@ Object.defineProperty(Vue.prototype, '$ssrContext', {
     return this.$vnode && this.$vnode.ssrContext
   }
 })
+```
 
-// 在 runtime/index.js 文件中
+**Path**：platforms/web/runtime/index.js
+
+```js
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 Vue.prototype.$mount = function (
   el?: string | Element,
@@ -69,8 +103,11 @@ Vue.prototype.$mount = function (
   el = el && inBrowser ? query(el) : undefined
   return mountComponent(this, el, hydrating)
 }
+```
 
-// 在入口文件 entry-runtime-with-compiler.js 中重写了 Vue.prototype.$mount 方法
+**Path**：在入口文件 entry-runtime-with-compiler.js 中重写了 Vue.prototype.$mount 方法
+
+```js
 Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
@@ -78,3 +115,5 @@ Vue.prototype.$mount = function (
   // ... 函数体
 }
 ```
+
+另见 附录 [Vue 构造函数整理-原型](../附录/Vue%20构造函数整理-原型.md)
