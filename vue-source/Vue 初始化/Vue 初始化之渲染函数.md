@@ -207,7 +207,7 @@ vm.$options.render = function () {
   // render 函数的 this 指向实例的 _renderProxy
   with(this){
     return _c('div',{attrs:{"id":"app"}},[_v(_s(message))])} // 在这里访问 message，相当于访问 vm._renderProxy.message
-})
+  })
 }
 ```
 
