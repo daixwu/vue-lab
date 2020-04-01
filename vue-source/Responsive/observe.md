@@ -85,10 +85,10 @@ export function toggleObserving (value: boolean) {
 这个条件很好理解，只有当数据对象是数组或纯对象的时候，才有必要对其进行观测。
 
 **第四个条件是 `Object.isExtensible(value)` 必须为真**
-也就是说要被观测的数据对象必须是可扩展的。一个普通的对象默认就是可扩展的，以下三个方法都可以使得一个对象变得不可扩展：Object.preventExtensions()、Object.freeze() 以及 Object.seal()。
+也就是说要被观测的数据对象必须是可扩展的。一个普通的对象默认就是可扩展的，以下三个方法都可以使得一个对象变得不可扩展：`Object.preventExtensions()`、`Object.freeze()` 以及 `Object.seal()`。
 
-**第五个条件是 !value._isVue 必须为真**
-我们知道 Vue 实例对象拥有 _isVue 属性，所以这个条件用来避免 Vue 实例对象被观测。
+**第五个条件是 `!value._isVue` 必须为真**
+我们知道 Vue 实例对象拥有 `_isVue` 属性，所以这个条件用来避免 Vue 实例对象被观测。
 
 当一个对象满足了以上五个条件时，就会执行 `else...if` 语句块的代码，即创建一个 Observer 实例：
 

@@ -1,12 +1,51 @@
-# 实例对象代理访问数据 data
+# initData 初始化 data
 
-我们找到 initData 函数，该函数与 initState 函数定义在同一个文件中，即 core/instance/state.js 文件，initData 函数的一开始是这样一段代码：
+data 的初始化主要过程也是做两件事，一个是对定义 data 函数返回对象的遍历，通过 proxy 把每一个值 `vm._data.xxx` 都代理到 `vm.xxx` 上；另一个是调用 observe 方法观测整个 data 的变化，把 data 也变成响应式，可以通过 `vm._data.xxx` 访问到定义 data 返回函数中对应的属性。
+
+我们找到 initData 函数，该函数与 initState 函数定义在同一个文件中，即 core/instance/state.js 文件中：
 
 ```js
-let data = vm.$options.data
-data = vm._data = typeof data === 'function'
-  ? getData(data, vm)
-  : data || {}
+function initData (vm: Component) {xs
+  let data = vm.$options.data
+  data = vm._data = typeof data === 'function'
+    ? getData(data, vm)
+    : data || {}
+  if (!isPlainObject(data)) {
+    data = {}
+    process.env.NODE_ENV !== 'production' && warn(
+      'data functions should return an object:\n' +
+      'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
+      vm
+    )
+  }
+  // proxy data on instance
+  const keys = Object.keys(data)
+  const props = vm.$options.props
+  const methods = vm.$options.methods
+  let i = keys.length
+  while (i--) {
+    const key = keys[i]
+    if (process.env.NODE_ENV !== 'production') {
+      if (methods && hasOwn(methods, key)) {
+        warn(
+          `Method "${key}" has already been defined as a data property.`,
+          vm
+        )
+      }
+    }
+    if (props && hasOwn(props, key)) {
+      process.env.NODE_ENV !== 'production' && warn(
+        `The data property "${key}" is already declared as a prop. ` +
+        `Use prop default value instead.`,
+        vm
+      )
+    } else if (!isReserved(key)) {
+      proxy(vm, `_data`, key)
+    }
+  }
+  // observe data
+  observe(data, true /* asRootData */)
+}
 ```
 
 首先定义 data 变量，它是 `vm.$options.data` 的引用。在 Vue选项的合并 一节中我们知道 `vm.$options.data` 其实最终被处理成了一个函数，且该函数的执行结果才是真正的数据。在上面的代码中我们发现其中依然存在一个使用 typeof 语句判断 data 数据类型的操作，我们知道经过 mergeOptions 函数处理后 data 选项必然是一个函数，那么这里的判断还有必要吗？答案是有，这是因为 beforeCreate 生命周期钩子函数是在 mergeOptions 函数之后 initData 之前被调用的，如果在 beforeCreate 生命周期钩子函数中修改了 `vm.$options.data` 的值，那么在 initData 函数中对于 `vm.$options.data` 类型的判断就是必要的了。
@@ -95,7 +134,7 @@ while (i--) {
 }
 ```
 
-上面的代码中首先使用 Object.keys 函数获取 data 对象的所有键，并将由 data 对象的键所组成的数组赋值给 keys 常量。接着分别用 props 常量和 methods 常量引用 `vm.$options.props` 和 `vm.$options.methods`。然后开启一个 while 循环，该循环用来遍历 keys 数组，那么遍历 keys 数组的目的是什么呢？我们来看循环体内的第一段 if 语句：
+上面的代码中首先使用 `Object.keys` 函数获取 data 对象的所有键，并将由 data 对象的键所组成的数组赋值给 keys 常量。接着分别用 props 常量和 methods 常量引用 `vm.$options.props` 和 `vm.$options.methods`。然后开启一个 while 循环，该循环用来遍历 keys 数组，那么遍历 keys 数组的目的是什么呢？我们来看循环体内的第一段 if 语句：
 
 ```js
 const key = keys[i]
@@ -154,6 +193,13 @@ proxy(vm, `_data`, key)
 其中关键点在于 proxy 函数，该函数同样定义在 core/instance/state.js 文件中，其内容如下：
 
 ```js
+const sharedPropertyDefinition = {
+  enumerable: true,
+  configurable: true,
+  get: noop,
+  set: noop
+}
+
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]

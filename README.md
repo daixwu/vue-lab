@@ -36,18 +36,37 @@ Vue(2.6.10) research laboratory
 
 [Vue 初始化之 initState](vue-source/Vue%20初始化/Vue%20初始化之%20initState.md)
 
-## Vue 数据响应系统
+## Vue 数据响应系统（Responsive）
 
-[Vue 数据响应系统开篇](vue-source/Vue%20数据响应系统/Vue%20数据响应系统开篇.md)
+### 响应式对象
 
-[实例对象代理访问数据 data](vue-source/Vue%20数据响应系统/实例对象代理访问数据%20data.md)
+[Vue 数据响应系统开篇](vue-source/Responsive/starter.md)
 
-[数据响应系统的基本思路](vue-source/Vue%20数据响应系统/数据响应系统的基本思路.md)
+[initData 初始化 data](vue-source/Responsive/initData.md)
 
-[数据响应系统的基本思路](vue-source/Vue%20数据响应系统/数据响应系统的基本思路.md)
+[数据响应系统的基本思路](vue-source/Responsive/mentality.md)
 
-[observe 工厂函数](vue-source/Vue%20数据响应系统/observe%20工厂函数.md)
+[observe 工厂函数](vue-source/Responsive/observe.md)
 
-[Observer 构造函数](vue-source/Vue%20数据响应系统/Observer%20构造函数.md)
+[Observer 构造函数](vue-source/Responsive/Observer.md)
 
-[Vue set(`$set`)和delete(`$delete`)的实现](vue-source/Vue%20数据响应系统/Vue%20set和delete的实现.md)
+[defineReactive 添加 getter 和 setter](vue-source/Responsive/defineReactive.md)
+
+[get 函数如何收集依赖](vue-source/Responsive/getter.md)
+
+[set 函数如何触发依赖](vue-source/Responsive/setter.md)
+
+[响应式数据之数组的处理](vue-source/Responsive/arrayProcessing.md)
+
+### 依赖收集
+
+[Dep 管理 Watcher](vue-source/Responsive/dep.md)
+
+[Watcher 构造函数](vue-source/Responsive/Watcher.md)
+
+[依赖收集的过程](vue-source/Responsive/depDepend.md)
+
+
+
+
+[`set($set)` 和 `delete($delete)` 的实现](vue-source/Responsive/set&delete.md)
