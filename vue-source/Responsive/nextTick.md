@@ -36,7 +36,7 @@ for (macroTask of macroTaskQueue) {
 
 ## Vue 的实现
 
-`nextTick` 函数来自于 `src/core/util/next-tick.js` 文件，对于 `nextTick` 函数相信大家都不陌生，我们常用的 `$nextTick` 方法实际上就是对 `nextTick` 函数的封装，如下：
+`nextTick` 函数来自于 `src/core/util/next-tick.js` 文件，对于 `nextTick` 函数相信大家都不陌生，Vue.js 提供了 2 种调用 nextTick 的方式，一种是全局 API `Vue.nextTick`，一种是实例上的方法 `vm.$nextTick`，无论我们使用哪一种，最后都是调用 next-tick.js 中实现的 `nextTick` 方法。其中 `$nextTick` 方法定义在 src/core/instance/render.js 中，如下：
 
 ```js
 export function renderMixin (Vue: Class<Component>) {
@@ -85,7 +85,7 @@ if (isIOS) setTimeout(noop)
 
 注释已经写得很清楚了，这是一个解决怪异问题的变通方法，在一些 `UIWebViews` 中存在很奇怪的问题，即 `micro task` 没有被刷新，对于这个问题的解决方案就是让浏览做一些其他的事情比如注册一个 `macro task` 即使这个 `macro task` 什么都不做，这样就能够间接触发 `micro task` 的刷新。
 
-使用 `Promise` 是最理想的方案，但是如果宿主环境不支持 `Promise`，我们就需要降级处理，即注册 `macro task`，这就是 `else` 语句块内代码所做的事情：
+使用 `Promise` 是最理想的方案，但是如果宿主环境不支持 `Promise`，但如果宿主环境支持`MutationObserver`则使用`MutationObserver`,如果都不支持我们就需要降级处理，即注册 `macro task`，这就是之后 `else` 语句块内代码所做的事情：
 
 ```js
 let timerFunc
@@ -145,7 +145,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
 
 将一个回调函数注册为 `macro task` 的方式有很多，如 `setTimeout`、`setInterval` 以及 `setImmediate` 等等，但不同的方案之间是有区别的，通过上面的代码我们可以看到 `setTimeout` 被作为最后的备选方案。
 
-如果宿主环境支持`MutationObserver`则使用`MutationObserver`,如果宿主环境支持原生 `setImmediate` 函数，则使用 `setImmediate` 注册 `macro task`，`setTimeout` 放在最后，为什么首选 `setImmediate` 呢？这是有原因的，因为 `setImmediate` 拥有比 `setTimeout` 更好的性能，这个问题很好理解，`setTimeout` 在将回调注册为 `macro task` 之前要不停的做超时检测，而 `setImmediate` 则不需要，这就是优先选用 `setImmediate` 的原因。但是 `setImmediate` 的缺陷也很明显，就是它的兼容性问题，到目前为止只有IE浏览器实现了它，所以为了兼容非IE浏览器我们还需要做兼容处理。
+如果宿主环境支持原生 `setImmediate` 函数，则使用 `setImmediate` 注册 `macro task`，`setTimeout` 放在最后，为什么首选 `setImmediate` 呢？这是有原因的，因为 `setImmediate` 拥有比 `setTimeout` 更好的性能，这个问题很好理解，`setTimeout` 在将回调注册为 `macro task` 之前要不停的做超时检测，而 `setImmediate` 则不需要，这就是优先选用 `setImmediate` 的原因。但是 `setImmediate` 的缺陷也很明显，就是它的兼容性问题，到目前为止只有IE浏览器实现了它，所以为了兼容非IE浏览器我们还需要做兼容处理。
 
 现在是时候仔细看一下 `nextTick` 函数都做了什么事情了，不过为了更融入理解 `nextTick` 函数的代码，我们需要从 `$nextTick` 方法入手，如下：
 
@@ -346,5 +346,3 @@ getData(res).then(()=>{
   })
 })
 ```
-
-Vue.js 提供了 2 种调用 nextTick 的方式，一种是全局 API `Vue.nextTick`，一种是实例上的方法 `vm.$nextTick`，无论我们使用哪一种，最后都是调用 next-tick.js 中实现的 `nextTick` 方法。

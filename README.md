@@ -58,6 +58,8 @@ Vue(2.6.10) research laboratory
 
 [响应式数据之数组的处理](vue-source/Responsive/arrayProcessing.md)
 
+[`set($set)` 和 `delete($delete)` 的实现](vue-source/Responsive/set&delete.md)
+
 ### 依赖收集
 
 [Dep 管理 Watcher](vue-source/Responsive/dep.md)
@@ -66,7 +68,15 @@ Vue(2.6.10) research laboratory
 
 [依赖收集的过程](vue-source/Responsive/depDepend.md)
 
+### 派发更新
+
+[派发更新的过程](vue-source/Responsive/depNotify.md)
+
+[queueWatcher 异步更新队列](vue-source/Responsive/queueWatcher.md)
+
+[nextTick 的实现](vue-source/Responsive/nextTick.md)
+
+## 计算属性 VS 侦听属性
 
 
 
-[`set($set)` 和 `delete($delete)` 的实现](vue-source/Responsive/set&delete.md)

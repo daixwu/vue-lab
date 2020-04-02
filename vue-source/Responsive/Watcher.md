@@ -312,10 +312,10 @@ new Watcher(vm, updateComponent, noop, {
 this.cb = cb
 this.id = ++uid // uid for batching
 this.active = true
-this.dirty = this.computed // for computed watchers
+this.dirty = this.lazy // for lazy watchers
 ```
 
-如上代码所示，定义了 `this.cb` 属性，它的值为 `cb` 回调函数。定义了 `this.id` 属性，它是观察者实例对象的唯一标识。定义了 `this.active` 属性，它标识着该观察者实例对象是否是激活状态，默认值为 `true` 代表激活。定义了 `this.dirty` 属性，该属性的值与 `this.computed` 属性的值相同，也就是说只有计算属性的观察者实例对象的 `this.dirty` 属性的值才会为真，因为计算属性是惰性求值。
+如上代码所示，定义了 `this.cb` 属性，它的值为 `cb` 回调函数。定义了 `this.id` 属性，它是观察者实例对象的唯一标识。定义了 `this.active` 属性，它标识着该观察者实例对象是否是激活状态，默认值为 `true` 代表激活。定义了 `this.dirty` 属性，该属性的值与 `this.lazy` 属性的值相同，也就是说只有计算属性的观察者实例对象的 `this.dirty` 属性的值才会为真，因为计算属性是惰性求值。
 
 接着往下看代码，如下：
 
@@ -455,4 +455,4 @@ this.value = this.lazy
   : this.get()
 ```
 
-通过这段代码我们可以发现，计算属性的观察者和其他观察者实例对象的处理方式是不同的，对于计算属性的观察者我们会在讲解计算属性时详细说明。除计算属性的观察者之外的所有观察者实例对象都将执行如上代码的 `else` 分支语句，即调用 `this.get()` 方法。
+通过这段代码我们可以发现，当计算属性的观察者和其他观察者实例对象的处理方式是不同的，对于计算属性的观察者我们会在讲解计算属性时详细说明。除计算属性的观察者之外的所有观察者实例对象都将调用 `this.get()` 方法。

@@ -1,6 +1,8 @@
 # `set($set)` 和 `delete($delete)` 的实现
 
-现在我们是时候讲解一下 `Vue.set` 和 `Vue.delete` 函数的实现了，我们知道 Vue 数据响应系统的原理的核心是通过 `Object.defineProperty` 函数将数据对象的属性转换为访问器属性，从而使得我们能够拦截到属性的读取和设置，但正如官方文档中介绍的那样，Vue 是没有能力拦截到为一个对象(或数组)添加属性(或元素)的，而 `Vue.set` 和 `Vue.delete` 就是为了解决这个问题而诞生的。同时为了方便使用， Vue 还在实例对象上定义了 `$set` 和 `$delete` 方法，实际上 `$set` 和 `$delete` 方法仅仅是 `Vue.set` 和 `Vue.delete` 的别名，为了证明这点，我们首先来看看 `$set` 和 `$delete` 的实现，还记得 `$set` 和 `$delete` 方法定义在哪里吗？不记得也没关系，我们可以通过查看附录 Vue 构造函数整理-原型 找到 `$set` 和 `$delete` 方法的定义位置，我们发现 `$set` 和 `$delete` 定义在 src/core/instance/state.js 文件的 stateMixin 函数中，如下代码：
+现在我们是时候讲解一下 `Vue.set` 和 `Vue.delete` 函数的实现了，我们知道 Vue 数据响应系统的原理的核心是通过 `Object.defineProperty` 函数将数据对象的属性转换为访问器属性，从而使得我们能够拦截到属性的读取和设置，但正如官方文档中介绍的那样，Vue 是没有能力拦截到为一个对象(或数组)添加属性(或元素)的，而 `Vue.set` 和 `Vue.delete` 就是为了解决这个问题而诞生的。
+
+同时为了方便使用， Vue 还在实例对象上定义了 `$set` 和 `$delete` 方法，实际上 `$set` 和 `$delete` 方法仅仅是 `Vue.set` 和 `Vue.delete` 的别名，为了证明这点，我们首先来看看 `$set` 和 `$delete` 的实现，还记得 `$set` 和 `$delete` 方法定义在哪里吗？不记得也没关系，我们可以通过查看附录 Vue 构造函数整理-原型 找到 `$set` 和 `$delete` 方法的定义位置，我们发现 `$set` 和 `$delete` 定义在 src/core/instance/state.js 文件的 stateMixin 函数中，如下代码：
 
 ```js
 export function stateMixin (Vue: Class<Component>) {
@@ -42,11 +44,39 @@ export function initGlobalAPI (Vue: GlobalAPI) {
 
 ```js
 export function set (target: Array<any> | Object, key: any, val: any): any {
-  // 省略...
+  if (process.env.NODE_ENV !== 'production' &&
+    (isUndef(target) || isPrimitive(target))
+  ) {
+    warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
+  }
+  if (Array.isArray(target) && isValidArrayIndex(key)) {
+    target.length = Math.max(target.length, key)
+    target.splice(key, 1, val)
+    return val
+  }
+  if (key in target && !(key in Object.prototype)) {
+    target[key] = val
+    return val
+  }
+  const ob = (target: any).__ob__
+  if (target._isVue || (ob && ob.vmCount)) {
+    process.env.NODE_ENV !== 'production' && warn(
+      'Avoid adding reactive properties to a Vue instance or its root $data ' +
+      'at runtime - declare it upfront in the data option.'
+    )
+    return val
+  }
+  if (!ob) {
+    target[key] = val
+    return val
+  }
+  defineReactive(ob.value, key, val)
+  ob.dep.notify()
+  return val
 }
 ```
 
-set 函数接收三个参数，相信很多同学都有使用过 `Vue.set/$set` 函数的经验，那么大家对这三个参数应该不陌生。第一个参数 target 是将要被添加属性的对象，第二个参数 key 以及第三个参数 val 分别是要添加属性的键名和值。
+set 函数接收三个参数，相信很多同学都有使用过 `Vue.set/$set` 函数的经验，那么大家对这三个参数应该不陌生。target 可能是数组或者是普通对象，key 代表的是数组的下标或者是对象的键值，val 代表添加的值。
 
 下面我们一点点来看 set 函数的代码，首先是一个 if 语句块：
 
@@ -223,7 +253,7 @@ new Vue({
 })
 ```
 
-如上代码所示，ob1 就是属于根数据的 Observer 实例对象，如果想要在根数据上使用 `Vue.set/$set` 并触发响应：
+如上代码所示，obj 就是属于根数据的 Observer 实例对象，如果想要在根数据上使用 `Vue.set/$set` 并触发响应：
 
 ```js
 Vue.set(data, 'someProperty', 'someVal')
