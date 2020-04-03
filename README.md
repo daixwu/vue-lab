@@ -36,7 +36,7 @@ Vue(2.6.10) research laboratory
 
 [Vue 初始化之 initState](vue-source/Vue%20初始化/Vue%20初始化之%20initState.md)
 
-## Vue 数据响应系统（Responsive）
+## Vue 响应式原理（Responsive）
 
 ### 响应式对象
 
@@ -78,5 +78,14 @@ Vue(2.6.10) research laboratory
 
 ## 计算属性 VS 侦听属性
 
+> 计算属性本质上是 computed watcher，而侦听属性本质上是 user watcher。就应用场景而言，计算属性适合用在模板渲染中，某个值是依赖了其它的响应式对象甚至是计算属性计算而来；而侦听属性适用于观测某个值的变化去完成一段复杂的业务逻辑。
 
+[computed 计算属性的初始化](vue-source/Responsive/computedInit.md)
 
+[computed 计算属性的实现](vue-source/Responsive/computed.md)
+
+[watch 侦听属性的实现](vue-source/Responsive/watch.md)
+
+[Watcher 构造函数对 options 的处理](vue-source/Responsive/WatcherOptions.md)
+
+## Vue 组件更新

@@ -1,4 +1,4 @@
-# watch 侦听属性
+# watch 侦听属性的实现
 
 侦听属性的初始化发生在 Vue 的实例初始化阶段的 initState 函数中，在 computed 初始化之后，执行了：
 
@@ -326,77 +326,3 @@ methods: {
 ```
 
 上面的代码中我们在 `watch` 选项中观察了 `name` 属性，但是我们没有指定回调函数，而是指定了一个字符串 `handleNameChange`，这等价于指定了 `methods` 选项中同名函数作为回调函数。这就是如上 `createWatcher` 函数中那段代码的目的。
-
-
-
-
-上例中我们使用了 `watch` 选项，接下来我们就顺便来看一下 `watch` 选项是如何初始化的，找到 `initState` 函数，如下：
-
-```js {12-14}
-export function initState (vm: Component) {
-  vm._watchers = []
-  const opts = vm.$options
-  if (opts.props) initProps(vm, opts.props)
-  if (opts.methods) initMethods(vm, opts.methods)
-  if (opts.data) {
-    initData(vm)
-  } else {
-    observe(vm._data = {}, true /* asRootData */)
-  }
-  if (opts.computed) initComputed(vm, opts.computed)
-  if (opts.watch && opts.watch !== nativeWatch) {
-    initWatch(vm, opts.watch)
-  }
-}
-```
-
-如上高亮代码所示，在这个 `if` 条件语句块中，调用 `initWatch` 函数，这个函数用来初始化 `watch` 选项，至于判断条件我们就不多讲了，前面的讲解中我们已经讲解过类似的判断条件。至于 `initWatch` 函数，它就定义在 `createWatcher` 函数的上方，如下是其全部代码：
-
-```js
-function initWatch (vm: Component, watch: Object) {
-  for (const key in watch) {
-    const handler = watch[key]
-    if (Array.isArray(handler)) {
-      for (let i = 0; i < handler.length; i++) {
-        createWatcher(vm, key, handler[i])
-      }
-    } else {
-      createWatcher(vm, key, handler)
-    }
-  }
-}
-```
-
-可以看到 `initWatch` 函数就是通过对 `watch` 选项遍历，然后通过 `createWatcher` 函数创建观察者对象的，需要注意的是上面代码中有一个判断条件，如下高亮代码所示：
-
-```js {4}
-function initWatch (vm: Component, watch: Object) {
-  for (const key in watch) {
-    const handler = watch[key]
-    if (Array.isArray(handler)) {
-      for (let i = 0; i < handler.length; i++) {
-        createWatcher(vm, key, handler[i])
-      }
-    } else {
-      createWatcher(vm, key, handler)
-    }
-  }
-}
-```
-
-通过这个条件我们可以发现 `handler` 常量可以是一个数组，`handler` 常量是什么呢？它的值是 `watch[key]`，也就是说我们在使用 `watch` 选项时可以通过传递数组来实现创建多个观察者，如下：
-
-```js
-watch: {
-  name: [
-    function () {
-      console.log('name 改变了1')
-    },
-    function () {
-      console.log('name 改变了2')
-    }
-  ]
-}
-```
-
-总的来说，在 `Watcher` 类的基础上，无论是实现 `$watch` 方法还是实现 `watch` 选项，都变得非常容易，这得益于一个良好的设计。

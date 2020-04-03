@@ -199,6 +199,9 @@ const computedWatcherOptions = { lazy: true }
 再往下是 `for...in` 循环中的最后一段代码，如下：
 
 ```js
+// component-defined computed properties are already defined on the
+// component prototype. We only need to define computed properties defined
+// at instantiation here.
 if (!(key in vm)) {
   defineComputed(vm, key, userDef)
 } else if (process.env.NODE_ENV !== 'production') {
@@ -212,7 +215,28 @@ if (!(key in vm)) {
 
 这段代码首先检查计算属性的名字是否已经存在于组件实例对象中，我们知道在初始化计算属性之前已经初始化了 `props`、`methods` 和 `data` 选项，并且这些选项数据都会定义在组件实例对象上，由于计算属性也需要定义在组件实例对象上，所以需要使用计算属性的名字检查组件实例对象上是否已经有了同名的定义，如果该名字已经定义在组件实例对象上，那么有可能是 `data` 数据或 `props` 数据或 `methods` 数据之一，对于 `data` 和 `props` 来讲他们是不允许被 `computed` 选项中的同名属性覆盖的，所以在非生产环境中还要检查计算属性中是否存在与 `data` 和 `props` 选项同名的属性，如果有则会打印警告信息。如果没有则调用 `defineComputed` 定义计算属性。
 
-`defineComputed` 函数就定义在 `initComputed` 函数的下方，如下是 `defineComputed` 函数的签名及最后一句代码：
+这里我们注意一下最上面的注释，意思是组件上定义的计算属性已经在组件的原型上定义了，而这个过程是发生在 `Vue.extend` 也就是创建子组件构造器的过程中定义的，我们来看下 `Vue.extend` 的代码，在 src/core/global-api/extend.js 中：
+
+```js
+Vue.extend = function (extendOptions: Object): Function {
+  // ...
+  if (Sub.options.computed) {
+    initComputed(Sub)
+  }
+
+  // ...
+  return Sub
+}
+
+function initComputed (Comp) {
+  const computed = Comp.options.computed
+  for (const key in computed) {
+    defineComputed(Comp.prototype, key, computed[key])
+  }
+}
+```
+
+在创建子组件构造器的过程中会提前调用 `defineComputed` 方法，`defineComputed` 函数就定义在 `initComputed` 函数的下方，如下是 `defineComputed` 函数的签名及最后一句代码：
 
 ```js
 const sharedPropertyDefinition = {
