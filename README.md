@@ -71,10 +71,10 @@ Vue research laboratory
 
 ### 依赖收集
 
+| Section | Abstract | mindMap |
+| ----- | ----- | ----- |
 | [Dep 管理 Watcher](vue-source/Reactive/dep.md) | | |
-
 | [Watcher 构造函数](vue-source/Reactive/Watcher.md) | | |
-
 | [依赖收集的过程](vue-source/Reactive/depDepend.md) | | |
 
 ### 派发更新
