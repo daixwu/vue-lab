@@ -114,5 +114,7 @@ Vue research laboratory
 | ----- | ----- | ----- |
 | [Vue event 事件实现原理](vue-source/extend/event.md) | | |
 | [Vue v-model 实现原理](vue-source/extend/v-model.md) | | |
+| [Vue slot 实现原理](vue-source/extend/slot.md) | | |
+| [Vue keep-alive 实现原理](vue-source/extend/keep-alive.md) | | |
 | [Vue transition 实现原理](vue-source/extend/tansition.md) | | |
 | [Vue transition-group 实现原理](vue-source/extend/tansition-group.md) | | |

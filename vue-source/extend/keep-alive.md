@@ -1,4 +1,4 @@
-# keep-alive
+# Vue keep-alive 实现原理
 
 在我们的平时开发工作中，经常为了组件的缓存优化而使用 `<keep-alive>` 组件，乐此不疲，但很少有人关注它的实现原理，下面就让我们来一探究竟。
 
@@ -8,7 +8,7 @@
 
 ```js
 export default {
-  name: 'keep-alive,
+  name: 'keep-alive',
   abstract: true,
 
   props: {
@@ -81,7 +81,7 @@ export default {
 }
 ```
 
-可以看到 `<keep-alive>` 组件的实现也是一个对象，注意它有一个属性 `abstract` 为 true，是一个抽象组件，Vue 的文档没有提这个概念，实际上它在组件实例建立父子关系的时候会被忽略，发生在 `initLifecycle` 的过程中：
+可以看到 `<keep-alive>` 组件的实现也是一个对象，注意它有一个属性 `abstract` 为 true，是一个抽象组件，Vue 的文档没有提这个概念，实际上它在组件实例建立父子关系的时候会被忽略，发生在 `initLifecycle` 的过程中，其定义在 src/core/instance/lifecycle.js 里：
 
 ```js
 // locate first non-abstract parent
@@ -95,7 +95,7 @@ if (parent && !options.abstract) {
 vm.$parent = parent
 ```
 
-`<keep-alive>` 在 `created` 钩子里定义了 `this.cache` 和 `this.keys`，本质上它就是去缓存已经创建过的 `vnode`。它的 `props` 定义了 `include`，`exclude`，它们可以字符串或者表达式，`include` 表示只有匹配的组件会被缓存，而 `exclude` 表示任何匹配的组件都不会被缓存，`props` 还定义了 `max`，它表示缓存的大小，因为我们是缓存的 `vnode` 对象，它也会持有 DOM，当我们缓存很多的时候，会比较占用内存，所以该配置允许我们指定缓存大小。
+`<keep-alive>` 在 `created` 钩子里定义了 `this.cache` 和 `this.keys`，本质上它就是去缓存已经创建过的 `vnode`。它的 `props` 定义了 `include`，`exclude`，它们可以为字符串或者表达式，`include` 表示只有匹配的组件会被缓存，而 `exclude` 表示任何匹配的组件都不会被缓存，`props` 还定义了 `max`，它表示缓存的大小，因为我们是缓存的 `vnode` 对象，它也会持有 DOM，当我们缓存很多的时候，会比较占用内存，所以该配置允许我们指定缓存大小。
 
 `<keep-alive>` 直接实现了 `render` 函数，而不是我们常规模板的方式，执行 `<keep-alive>` 组件渲染的时候，就会执行到这个 `render` 函数，接下来我们分析一下它的实现。
 
@@ -172,10 +172,11 @@ function pruneCacheEntry (
   if (cached && (!current || cached.tag !== current.tag)) {
     cached.componentInstance.$destroy()
   }
-  cache[key] = null 
+  cache[key] = null
   remove(keys, key)
 }
 ```
+
 除了从缓存中删除外，还要判断如果要删除的缓存并的组件 `tag` 不是当前渲染组件 `tag`，也执行删除缓存的组件实例的 `$destroy` 方法。
 
 最后设置 `vnode.data.keepAlive = true` ，这个作用稍后我们介绍。
@@ -183,13 +184,13 @@ function pruneCacheEntry (
 注意，`<keep-alive>` 组件也是为观测 `include` 和 `exclude` 的变化，对缓存做处理：
 
 ```js
-watch: {
-  include (val: string | RegExp | Array<string>) {
+mounted () {
+  this.$watch('include', val => {
     pruneCache(this, name => matches(val, name))
-  },
-  exclude (val: string | RegExp | Array<string>) {
+  })
+  this.$watch('exclude', val => {
     pruneCache(this, name => !matches(val, name))
-  }
+  })
 }
 
 function pruneCache (keepAliveInstance: any, filter: Function) {
@@ -205,6 +206,7 @@ function pruneCache (keepAliveInstance: any, filter: Function) {
   }
 }
 ```
+
 逻辑很简单，观测他们的变化执行 `pruneCache` 函数，其实就是对 `cache` 做遍历，发现缓存的节点名称和新的规则没有匹配上的时候，就把这个缓存节点从缓存中摘除。
 
 ## 组件渲染
@@ -218,14 +220,32 @@ let A = {
   template: '<div class="a">' +
   '<p>A Comp</p>' +
   '</div>',
-  name: 'A'
+  name: 'A',
+  mounted() {
+    console.log('Com B mounted')
+  },
+  activated() {
+    console.log('Com B activated')
+  },
+  deactivated() {
+    console.log('Com B deactivated')
+  }
 }
 
 let B = {
   template: '<div class="b">' +
   '<p>B Comp</p>' +
   '</div>',
-  name: 'B'
+  name: 'B',
+  mounted() {
+    console.log('Com B mounted')
+  },
+  activated() {
+    console.log('Com B activated')
+  },
+  deactivated() {
+    console.log('Com B deactivated')
+  }
 }
 
 let vm = new Vue({
@@ -301,6 +321,7 @@ function initComponent (vnode, insertedVnodeQueue) {
   }
 }
 ```
+
 这里会有 `vnode.elm` 缓存了 `vnode` 创建生成的 DOM 节点。所以对于首次渲染而言，除了在 `<keep-alive>` 中建立缓存，和普通组件渲染没什么区别。
 
 所以对我们的例子，初始化渲染 `A` 组件以及第一次点击 `switch` 渲染 `B` 组件，都是首次渲染。
@@ -315,6 +336,7 @@ function initComponent (vnode, insertedVnodeQueue) {
 
 ```js
 const componentVNodeHooks = {
+  // ...
   prepatch (oldVnode: MountedComponentVNode, vnode: MountedComponentVNode) {
     const options = vnode.componentOptions
     const child = vnode.componentInstance = oldVnode.componentInstance
@@ -340,18 +362,23 @@ export function updateChildComponent (
   parentVnode: MountedComponentVNode,
   renderChildren: ?Array<VNode>
 ) {
-  const hasChildren = !!(
-    renderChildren ||          
-    vm.$options._renderChildren ||
-    parentVnode.data.scopedSlots || 
-    vm.$scopedSlots !== emptyObject 
+  // ...
+  // Any static slot children from the parent may have changed during parent's
+  // update. Dynamic scoped slots may also have changed. In such cases, a forced
+  // update is necessary to ensure correctness.
+  const needsForceUpdate = !!(
+    renderChildren ||               // has new static slots
+    vm.$options._renderChildren ||  // has old static slots
+    hasDynamicScopedSlot
   )
 
   // ...
-  if (hasChildren) {
+  // resolve slots + force update if has children
+  if (needsForceUpdate) {
     vm.$slots = resolveSlots(renderChildren, parentVnode.context)
     vm.$forceUpdate()
   }
+  // ...
 }
 ```
 
@@ -380,6 +407,7 @@ function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
   }
 }
 ```
+
 这个时候 `isReactivated` 为 true，并且在执行 `init` 钩子函数的时候不会再执行组件的 `mount` 过程了，相关逻辑在 `src/core/vdom/create-component.js` 中：
 
 ```js
@@ -430,6 +458,7 @@ function reactivateComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
   insert(parentElm, vnode.elm, refElm)
 }
 ```
+
 前面部分的逻辑是解决对 `reactived` 组件 `transition` 动画不触发的问题，可以先不关注，最后通过执行 `insert(parentElm, vnode.elm, refElm)` 就把缓存的 DOM 对象直接插入到目标元素中，这样就完成了在数据更新的情况下的渲染过程。
 
 ## 生命周期
@@ -440,6 +469,7 @@ function reactivateComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
 
 ```js
 const componentVNodeHooks = {
+  // ...
   insert (vnode: MountedComponentVNode) {
     const { context, componentInstance } = vnode
     if (!componentInstance._isMounted) {
@@ -495,6 +525,7 @@ export function queueActivatedComponent (vm: Component) {
   activatedChildren.push(vm)
 }
 ```
+
 这个逻辑很简单，把当前 `vm` 实例添加到 `activatedChildren` 数组中，等所有的渲染完毕，在 `nextTick`后会执行 `flushSchedulerQueue`，这个时候就会执行：
 
 ```js
@@ -503,7 +534,7 @@ function flushSchedulerQueue () {
   const activatedQueue = activatedChildren.slice()
   callActivatedHooks(activatedQueue)
   // ...
-} 
+}
 
 function callActivatedHooks (queue) {
   for (let i = 0; i < queue.length; i++) {
@@ -511,12 +542,14 @@ function callActivatedHooks (queue) {
     activateChildComponent(queue[i], true)  }
 }
 ```
+
 也就是遍历所有的 `activatedChildren`，执行 `activateChildComponent` 方法，通过队列调的方式就是把整个 `activated` 时机延后了。
 
 有 `activated` 钩子函数，也就有对应的 `deactivated` 钩子函数，它是发生在 `vnode` 的 `destory` 钩子函数，定义在 `src/core/vdom/create-component.js` 中：
 
 ```js
 const componentVNodeHooks = {
+  // ...
   destroy (vnode: MountedComponentVNode) {
     const { componentInstance } = vnode
     if (!componentInstance._isDestroyed) {
@@ -554,4 +587,4 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
 
 ## 总结
 
-那么至此，`<keep-alive>` 的实现原理就介绍完了，通过分析我们知道了 `<keep-alive>` 组件是一个抽象组件，它的实现通过自定义 `render` 函数并且利用了插槽，并且知道了 `<keep-alive>` 缓存 `vnode`，了解组件包裹的子元素——也就是插槽是如何做更新的。且在 `patch` 过程中对于已缓存的组件不会执行 `mounted`，所以不会有一般的组件的生命周期函数但是又提供了 `activated` 和 `deactivated` 钩子函数。另外我们还知道了 `<keep-alive>` 的 `props` 除了 `include` 和 `exclude` 还有文档中没有提到的 `max`，它能控制我们缓存的个数。 
+那么至此，`<keep-alive>` 的实现原理就介绍完了，通过分析我们知道了 `<keep-alive>` 组件是一个抽象组件，它的实现通过自定义 `render` 函数并且利用了插槽，并且知道了 `<keep-alive>` 缓存 `vnode`，了解组件包裹的子元素——也就是插槽是如何做更新的。且在 `patch` 过程中对于已缓存的组件不会执行 `mounted`，所以不会有一般的组件的生命周期函数但是又提供了 `activated` 和 `deactivated` 钩子函数。另外我们还知道了 `<keep-alive>` 的 `props` 除了 `include` 和 `exclude` 还有文档中没有提到的 `max`，它能控制我们缓存的个数。
