@@ -1,7 +1,7 @@
 # API
 
 上一节我们对 Vuex 的初始化过程有了深入的分析，在我们构造好这个 `store` 后，需要提供一些 API 对这个 `store` 做存取的操作，那么这一节我们就从源码的角度对这些 API 做分析。
- 
+
 ## 数据获取
 
 Vuex 最终存储的数据是在 `state` 上的，我们之前分析过在 `store.state` 存储的是 `root state`，那么对于模块上的 `state`，假设我们有 2 个嵌套的 `modules`，它们的 `key` 分别为 `a` 和 `b`，我们可以通过 `store.state.a.b.xxx` 的方式去获取。它的实现是在发生在 `installModule` 的时候：
@@ -108,7 +108,7 @@ function resetStoreVM (store, state, hot) {
 ## 数据存储
 
 Vuex 对数据存储的存储本质上就是对 `state` 做修改，并且只允许我们通过提交 `mutaion` 的形式去修改 `state`，`mutation` 是一个函数，如下：
-    
+
 ```js
 mutations: {
   increment (state) {
@@ -275,7 +275,6 @@ dispatch (_type, _payload) {
 这里传入的 `_type` 就是 `action` 的 `type`，我们可以从 `store._actions` 找到对应的函数数组，遍历它们执行获取到每个 `handler` 然后执行，实际上就是执行了 `wrappedActionHandler(payload)`，接着会执行我们定义的 `action` 函数，并传入一个对象，包含了当前模块下的 `dispatch`、`commit`、`getters`、`state`，以及全局的 `rootState` 和 `rootGetters`，所以我们定义的 `action` 函数能拿到当前模块下的 `commit` 方法。
 
 因此 `action` 比我们自己写一个函数执行异步操作然后提交 `muataion` 的好处是在于它可以在参数中获取到当前模块的一些方法和状态，Vuex 帮我们做好了这些。
-
 
 ## 语法糖
 
@@ -609,6 +608,7 @@ unregister (path) {
   parent.removeChild(key)
 }
 ```
+
 注意，这里只会移除我们运行时动态创建的模块。
 
 接着会删除 `state` 在该路径下的引用，最后执行 `resetStore` 方法：

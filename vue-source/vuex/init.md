@@ -80,7 +80,8 @@ export default function (Vue) {
 
 我们在 `import Vuex` 之后，会实例化其中的 `Store` 对象，返回 `store` 实例并传入 `new Vue` 的 `options` 中，也就是我们刚才提到的 `options.store`.
 
-举个简单的例子，如下： 
+举个简单的例子，如下：
+
 ```js
 export default new Vuex.Store({
   actions,
@@ -606,7 +607,6 @@ function getNestedState (state, path) {
 
 `getNestedState` 逻辑很简单，从 `root state` 开始，通过 `path.reduce` 方法一层层查找子模块 `state`，最终找到目标模块的 `state`。
 
-
 那么构造完 `local` 上下文后，我们再回到 `installModule` 方法，接下来它就会遍历模块中定义的 `mutations`、`actions`、`getters`，分别执行它们的注册工作，它们的注册逻辑都大同小异。
 
 - `registerMutation`
@@ -628,7 +628,7 @@ function registerMutation (store, type, handler, local) {
 首先遍历模块中的 `mutations` 的定义，拿到每一个 `mutation` 和 `key`，并把 `key` 拼接上 `namespace`，然后执行 `registerMutation` 方法。该方法实际上就是给 `root store` 上的 `_mutations[types]` 添加 `wrappedMutationHandler` 方法，该方法的具体实现我们之后会提到。注意，同一 `type` 的 `_mutations` 可以对应多个方法。
 
 - `registerAction`
- 
+
 ````js
 module.forEachAction((action, key) => {
   const type = action.root ? key : namespace + key
@@ -660,7 +660,7 @@ function registerAction (store, type, handler, local) {
     }
   })
 }
-```` 
+````
 
 首先遍历模块中的 `actions` 的定义，拿到每一个 `action` 和 `key`，并判断 `action.root`，如果否的情况把 `key` 拼接上 `namespace`，然后执行 `registerAction` 方法。该方法实际上就是给 `root store` 上的 `_actions[types]` 添加 `wrappedActionHandler` 方法，该方法的具体实现我们之后会提到。注意，同一 `type` 的 `_actions` 可以对应多个方法。
 
@@ -827,7 +827,7 @@ forEachValue(wrappedGetters, (fn, key) => {
 当我根据 `key` 访问 `store.getters` 的某一个 `getter` 的时候，实际上就是访问了 `store._vm[key]`，也就是 `computed[key]`，在执行 `computed[key]` 对应的函数的时候，会执行 `rawGetter(local.state,...)` 方法，那么就会访问到 `store.state`，进而访问到 `store._vm._data.$$state`，这样就建立了一个依赖关系。当 `store.state` 发生变化的时候，下一次再访问 `store.getters` 的时候会重新计算。
 
 我们再来看一下 `strict mode` 的逻辑：
- 
+
 ```js
 if (store.strict) {
   enableStrictMode(store)
