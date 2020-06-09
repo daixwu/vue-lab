@@ -123,7 +123,8 @@ export function _createElement (
 `_createElement` 方法有 5 个参数:
 
 * context 表示 VNode 的上下文环境，它是 Component 类型；
-* tag 表示标签，它可以是一个字符串，也可以是一个 Component；data 表示 VNode 的数据，它是一个 VNodeData 类型，可以在 flow/vnode.js 中找到它的定义，这里先不展开说；
+* tag 表示标签，它可以是一个字符串，也可以是一个 Component；
+* data 表示 VNode 的数据，它是一个 VNodeData 类型，可以在 flow/vnode.js 中找到它的定义，这里先不展开说；
 * children 表示当前 VNode 的子节点，它是任意类型的，它接下来需要被规范为标准的 VNode 数组；
 * normalizationType 表示子节点规范的类型，类型不同规范的方法也就不一样，它主要是参考 render 函数是编译生成的还是用户手写的。
 

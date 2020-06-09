@@ -59,7 +59,7 @@ export function createComponent (
 }
 ```
 
-我们省略了不必要的逻辑，只保留关键逻辑，由于我们这个时候传入的 Ctor 是一个函数，那么它也并不会执行 `Vue.extend` 逻辑，因此它的 cid 是 undefiend，进入了异步组件创建的逻辑。这里首先执行了 `Ctor = resolveAsyncComponent(asyncFactory, baseCtor, context)` 方法，它的定义在 src/core/vdom/helpers/resolve-async-component.js 中：
+我们省略了不必要的逻辑，只保留关键逻辑，由于我们这个时候传入的 Ctor 是一个函数，那么它也并不会执行 `Vue.extend` 逻辑，因此它的 cid 是 `undefiend`，进入了异步组件创建的逻辑。这里首先执行了 `Ctor = resolveAsyncComponent(factory, baseCtor)` 方法，它的定义在 src/core/vdom/helpers/resolve-async-component.js 中：
 
 ```js
 export function resolveAsyncComponent (
