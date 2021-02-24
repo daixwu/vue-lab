@@ -60,7 +60,8 @@ export function installRenderHelpers (target: any) {
   target._g = bindObjectListeners
 }
 ```
-顾名思义，`_c` 就是执行 `createElement` 去创建 VNode，而 `_l` 对应 `renderList` 渲染列表；`_v` 对应 `createTextVNode` 创建文本 VNode；`_e` 对于 `createEmptyVNode`创建空的 VNode。 
+
+顾名思义，`_c` 就是执行 `createElement` 去创建 VNode，而 `_l` 对应 `renderList` 渲染列表；`_v` 对应 `createTextVNode` 创建文本 VNode；`_e` 对于 `createEmptyVNode`创建空的 VNode。
 
 在 `compileToFunctions` 中，会把这个 `render` 代码串转换成函数，它的定义在 `src/compler/to-function.js` 中：
 
@@ -141,6 +142,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
   }
 }
 ```
+
 基本就是判断当前 AST 元素节点的属性执行不同的代码生成函数，在我们的例子中，我们先了解一下 `genFor` 和 `genIf`。
 
 ## `genIf`
@@ -475,6 +477,7 @@ export function genHandlers (
   return res.slice(0, -1) + '}'
 }
 ```
+
 `genHandler` 的逻辑就不介绍了，很大部分都是对修饰符 `modifier` 的处理，感兴趣同学可以自己看，对于我们的例子，它最终 `genData` 生成的 `data` 字符串如下：
 
 ```js
@@ -517,6 +520,7 @@ function genNode (node: ASTNode, state: CodegenState): string {
   }
 }
 ```
+
 `genChildren` 的就是遍历 `children`，然后执行 `genNode` 方法，根据不同的 `type` 执行具体的方法。在我们的例子中，`li` AST 元素节点的 `children` 是 type 为 2 的表达式 AST 元素节点，那么会执行到 `genText(node)` 逻辑。
 
 ```js
@@ -557,6 +561,6 @@ export function genText (text: ASTText | ASTExpression): string {
 
 ## 总结
 
-这一节通过例子配合解析，我们对从 `ast -> code ` 这一步有了一些了解，编译后生成的代码就是在运行时执行的代码。由于 `genCode` 的内容有很多，所以我对大家的建议是没必要把所有的细节都一次性看完，我们应该根据具体一个 case，走完一条主线即可。
+这一节通过例子配合解析，我们对从 `ast -> code` 这一步有了一些了解，编译后生成的代码就是在运行时执行的代码。由于 `genCode` 的内容有很多，所以我对大家的建议是没必要把所有的细节都一次性看完，我们应该根据具体一个 case，走完一条主线即可。
 
 在之后的章节我们会对 `slot` 的实现做解析，我们会重新复习编译的章节，针对具体问题做具体分析，有利于我们排除干扰，对编译过程的学习有更深入的理解。

@@ -33,7 +33,7 @@ constructor (
 }
 ```
 
-可以发现 computed watcher 会并不会立刻求值。
+可以发现 computed watcher 并不会立刻求值。
 
 然后当我们的 render 函数执行访问到 `this.fullName` 的时候，就触发了计算属性的 getter，就是我们前面分析的 `sharedPropertyDefinition.get` 函数，我们知道在非服务端渲染的情况下，这个函数为：
 
@@ -120,7 +120,7 @@ addDep (dep: Dep) {
 
 新的依赖会添加到 newDeps 中。
 
-再回到 get 方法执行完 `this.getter.call(vm, vm)` 后会执行 pop Target这个时候 `Dep.target` 又回到了 render watcher 了接着又执行 cleanupDeps 方法：
+再回到 get 方法执行完 `this.getter.call(vm, vm)` 后会执行 popTarget这个时候 `Dep.target` 又回到了 render watcher 了接着又执行 cleanupDeps 方法：
 
 ```js
 cleanupDeps () {
@@ -167,7 +167,7 @@ update () {
 }
 ```
 
-update 也仅仅是把 `this.dirty` 设置为 false 并不会触发计算属性的重新计算也不会让页面重新渲染。所以我们需要把计算属性中的依赖收集到当前渲染 watcher 中。这样一旦计算属性的依赖发生变化就会触发 render watcher 的 update 就会触发重新渲染在重新渲染的过程中会再次访问到计算属性的 getter。然后又回到最初:
+update 也仅仅是把 `this.dirty` 设置为 true 并不会触发计算属性的重新计算也不会让页面重新渲染。所以我们需要把计算属性中的依赖收集到当前渲染 watcher 中。这样一旦计算属性的依赖发生变化就会触发 render watcher 的 update 就会触发重新渲染在重新渲染的过程中会再次访问到计算属性的 getter。然后又回到最初:
 
 ```js
 function computedGetter () {
@@ -184,6 +184,6 @@ function computedGetter () {
 }
 ```
 
-因为计算属性的依赖更新触发了 computed watcher 的 update，dirty 为 true所以又触发了计算属性的重新计算。
+因为计算属性的依赖更新触发了 computed watcher 的 update，dirty 为 true 所以又触发了计算属性的重新计算。
 
 这就是为什么当计算属性的依赖不改变计算属性就会用缓存的值只有它依赖发生了变化它才会重新计算。

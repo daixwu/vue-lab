@@ -143,6 +143,7 @@ export const baseOptions: CompilerOptions = {
   staticKeys: genStaticKeys(modules)
 }
 ```
+
 这些属性和方法之所以放到 `platforms` 目录下是因为它们在不同的平台（web 和 weex）的实现是不同的。
 
 我们用伪代码 `getFnsAndConfigFromOptions` 表示了这一过程，它的实际代码如下：
@@ -208,6 +209,7 @@ export function parseHTML (html, options) {
   }
 }
 ```
+
 由于 `parseHTML` 的逻辑也非常复杂，因此我也用了伪代码的方式表达，整体来说它的逻辑就是循环解析 `template` ，用正则做各种匹配，对于不同情况分别进行不同的处理，直到整个 template 被解析完毕。
 在匹配的过程中会利用 `advance` 函数不断前进整个模板字符串，直到字符串末尾。
 
@@ -220,7 +222,7 @@ function advance (n) {
 
 为了更加直观地说明 `advance` 的作用，可以通过一副图表示：
 
-<img :src="$withBase('/assets/advance-1.png')">
+![advance-1](../assets/img/advance-1.png)
 
 调用 `advance` 函数：
 
@@ -230,9 +232,7 @@ advance(4)
 
 得到结果：
 
-
-<img :src="$withBase('/assets/advance-2.png')">
-
+![advance-2](../assets/img/advance-2.png)
 
 匹配的过程中主要利用了正则表达式，如下：
 
@@ -247,6 +247,7 @@ const doctype = /^<!DOCTYPE [^>]+>/i
 const comment = /^<!\--/
 const conditionalComment = /^<!\[/
 ```
+
 通过这些正则表达式，我们可以匹配注释节点、文档类型节点、开始闭合标签等。
 
 - 注释节点、文档类型节点
@@ -323,6 +324,7 @@ function parseStartTag () {
   }
 }
 ```
+
 对于开始标签，除了标签名之外，还有一些标签相关的属性。函数先通过正则表达式 `startTagOpen` 匹配到开始标签，然后定义了 `match` 对象，接着循环去匹配开始标签中的属性并添加到 `match.attrs` 中，直到匹配的开始标签的闭合符结束。如果匹配到闭合符，则获取一元斜线符，前进到闭合符尾，并把当前索引赋值给 `match.end`。
 
 `parseStartTag` 对开始标签解析拿到 `match` 后，紧接着会执行 `handleStartTag` 对 `match` 做处理：
@@ -376,7 +378,7 @@ function handleStartTag (match) {
 `handleStartTag` 的核心逻辑很简单，先判断开始标签是否是一元标签，类似 `<img>、<br/>` 这样，接着对 `match.attrs` 遍历并做了一些处理，最后判断如果非一元标签，则往 `stack` 里 push 一个对象，并且把 `tagName` 赋值给 `lastTag`。至于 `stack` 的作用，稍后我会介绍。
 
 最后调用了 `options.start` 回调函数，并传入一些参数，这个回调函数的作用稍后我会详细介绍。
- 
+
 - 闭合标签
 
 ```js
@@ -445,13 +447,14 @@ function parseEndTag (tagName, start, end) {
 
 `parseEndTag` 的核心逻辑很简单，在介绍之前我们回顾一下在执行 `handleStartTag` 的时候，对于非一元标签（有 endTag）我们都把它构造成一个对象压入到 `stack` 中，如图所示：
 
-<img :src="$withBase('/assets/stack.png')">
+![stack](../assets/img/stack.png)
 
 那么对于闭合标签的解析，就是倒序 `stack`，找到第一个和当前 `endTag` 匹配的元素。如果是正常的标签匹配，那么 `stack` 的最后一个元素应该和当前的 `endTag` 匹配，但是考虑到如下错误情况：
 
 ```html
 <div><span></div>
 ```
+
 这个时候当 `endTag` 为 `</div>` 的时候，从 `stack` 尾部找到的标签是 `<span>`，就不能匹配，因此这种情况会报警告。匹配后把栈到 `pos` 位置的都弹出，并从 `stack` 尾部拿到 `lastTag`。
 
 最后调用了 `options.end` 回调函数，并传入一些参数，这个回调函数的作用稍后我会详细介绍。
@@ -495,7 +498,7 @@ if (options.chars && text) {
 
 因此，在循环解析整个 `template` 的过程中，会根据不同的情况，去执行不同的回调函数，下面我们来看看这些回调函数的作用。
 
-### 处理开始标签 
+### 处理开始标签
 
 对应伪代码：
 
@@ -582,6 +585,7 @@ if (inVPre) {
   processElement(element, options)
 }
 ```
+
 首先是对模块 `preTransforms` 的调用，其实所有模块的 `preTransforms`、 `transforms` 和 `postTransforms` 的定义都在 `src/platforms/web/compiler/modules` 目录中，这部分我们暂时不会介绍，之后会结合具体的例子说。接着判断 `element` 是否包含各种指令通过 `processXXX` 做相应的处理，处理的结果就是扩展 AST 元素的属性。这里我并不会一一介绍所有的指令处理，而是结合我们当前的例子，我们来看一下 `processFor` 和 `processIf`：
 
 ```js
@@ -651,7 +655,7 @@ export function addIfCondition (el: ASTElement, condition: ASTIfCondition) {
 }
 ```
 
-`processIf` 就是从元素中拿 `v-if` 指令的内容，如果拿到则给 AST 元素添加 `if` 属性和 `ifConditions` 属性；否则尝试拿 `v-else` 指令及 `v-else-if` 指令的内容，如果拿到则给 AST 元素分别添加 `else` 和 `elseif` 属性。 
+`processIf` 就是从元素中拿 `v-if` 指令的内容，如果拿到则给 AST 元素添加 `if` 属性和 `ifConditions` 属性；否则尝试拿 `v-else` 指令及 `v-else-if` 指令的内容，如果拿到则给 AST 元素分别添加 `else` 和 `elseif` 属性。
 
 - AST 树管理
 
@@ -771,6 +775,7 @@ function closeElement (element) {
   }
 }
 ```
+
 `closeElement` 逻辑很简单，就是更新一下 `inVPre` 和 `inPre` 的状态，以及执行 `postTransforms` 函数，这些我们暂时都不必了解。
 
 ### 处理文本内容
@@ -809,6 +814,7 @@ if (text) {
   }
 }
 ```
+
 文本构造的 AST 元素有 2 种类型，一种是有表达式的，`type` 为 2，一种是纯文本，`type` 为 3。在我们的例子中，文本就是 `{{item}}:{{index}}`，是个表达式，通过执行 `parseText(text, delimiters)` 对文本解析，它的定义在 `src/compiler/parser/text-parsre.js` 中：
 
 ```js
@@ -860,8 +866,8 @@ export function parseText (
 `parseText` 首先根据分隔符（默认是 `{{}}`）构造了文本匹配的正则表达式，然后再循环匹配文本，遇到普通文本就 push 到 `rawTokens` 和 `tokens` 中，如果是表达式就转换成 `_s(${exp})` push 到 `tokens` 中，以及转换成 `{@binding:exp}` push 到 `rawTokens` 中。
   
  对于我们的例子 `{{item}}:{{index}}`，`tokens` 就是 `[_s(item),'":"',_s(index)]`；`rawTokens` 就是 `[{'@binding':'item'},':',{'@binding':'index'}]`。那么返回的对象如下：
- 
- ```js
+
+```js
 return {
   expression: '_s(item)+":"+_s(index)',
   tokens: [{'@binding':'item'},':',{'@binding':'index'}]
@@ -870,7 +876,7 @@ return {
 
 ## 流程图
 
-<img :src="$withBase('/assets/parse.png')">
+![parse](../assets/img/parse.png)
 
 ## 总结
 

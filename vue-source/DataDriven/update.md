@@ -385,14 +385,15 @@ function createChildren (vnode, children, insertedVnodeQueue) {
   invokeCreateHooks(vnode, insertedVnodeQueue)
 }
 
-function invokeCreateHooks (vnode, insertedVnodeQueue) {
-  for (let i = 0; i < cbs.create.length; ++i) {
-    cbs.create[i](emptyNode, vnode)
-  }
-  i = vnode.data.hook // Reuse variable
-  if (isDef(i)) {
-    if (isDef(i.create)) i.create(emptyNode, vnode)
-    if (isDef(i.insert)) insertedVnodeQueue.push(vnode)
+function invokeInsertHook (vnode, queue, initial) {
+  // delay insert hooks for component root nodes, invoke them after the
+  // element is really inserted
+  if (isTrue(initial) && isDef(vnode.parent)) {
+    vnode.parent.data.pendingInsert = queue
+  } else {
+    for (let i = 0; i < queue.length; ++i) {
+      queue[i].data.hook.insert(queue[i])
+    }
   }
 }
 ```
@@ -405,7 +406,7 @@ insert(parentElm, vnode.elm, refElm)
 function insert (parent, elm, ref) {
   if (isDef(parent)) {
     if (isDef(ref)) {
-      if (ref.parentNode === parent) {
+      if (nodeOps.parentNode(ref) === parent) {
         nodeOps.insertBefore(parent, elm, ref)
       }
     } else {

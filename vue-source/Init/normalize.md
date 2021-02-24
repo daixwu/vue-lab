@@ -362,8 +362,11 @@ function normalizeProps (options: Object, vm: ?Component) {
 
 ```js
 props: ["someData"]
+```
+
 那么经过这个函数，props 将被规范为：
 
+```js
 props: {
   someData:{
     type: null

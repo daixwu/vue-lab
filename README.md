@@ -16,7 +16,7 @@ Vue research laboratory
 
 | Section | Abstract | mindMap |
 | ----- | ----- | ----- |
-| [Vue 初始化之开篇](vue-source/VueFunction/starter.md) | | |
+| [Vue 初始化之开篇](vue-source/Init/starter.md) | | |
 | [Vue 初始化之选项规范化](vue-source/Init/normalize.md) | | |
 | [Vue 初始化之选项合并](vue-source/Init/merge.md) | | |
 | [Vue 初始化之最终选项](vue-source/Init/options.md) | | |
@@ -107,6 +107,16 @@ Vue research laboratory
 | Section | Abstract | mindMap |
 | ----- | ----- | ----- |
 | [Vue Props 实现原理](vue-source/Reactive/props.md) | | |
+
+## Vue 编译
+
+| Section | Abstract | mindMap |
+| ----- | ----- | ----- |
+| [Vue 编译](vue-source/starter/starter.md) | | |
+| [Vue 编译入口](vue-source/starter/entrance.md) | | |
+| [Vue 编译之解析模板 生成 AST](vue-source/starter/parse.md) | | |
+| [Vue 编译之优化 AST 树](vue-source/starter/optimize.md) | | |
+| [Vue 编译之转换为可执行代码](vue-source/starter/codegen.md) | | |
 
 ## Vue 扩展
 

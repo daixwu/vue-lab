@@ -77,7 +77,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
 }
 ```
 
-上面的代码中首先检测当前宿主环境是否支持原生的 `Promise`，如果支持则优先使用 `Promise` 注册 `micro task`，做法很简单，首先定义常量 `p` 它的值是一个立即 `resolve` 的 `Promise` 实例对象，接着将变量 `microTimerFunc` 定义为一个函数，这个函数的执行将会把 `flushCallbacks` 函数注册为 `micro task`。另外大家注意这句代码：
+上面的代码中首先检测当前宿主环境是否支持原生的 `Promise`，如果支持则优先使用 `Promise` 注册 `micro task`，做法很简单，首先定义常量 `p` 它的值是一个立即 `resolve` 的 `Promise` 实例对象，接着将变量 `timerFunc` 定义为一个函数，这个函数的执行将会把 `flushCallbacks` 函数注册为 `micro task`。另外大家注意这句代码：
 
 ```js
 if (isIOS) setTimeout(noop)

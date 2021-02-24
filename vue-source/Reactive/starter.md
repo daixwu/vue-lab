@@ -22,7 +22,7 @@ obj 是要在其上定义属性的对象；prop 是要定义或修改的属性�
 
 ## initState
 
-在 Vue 的初始化阶段，`_init` 方法执行的时候，会执行 initState(vm) 方法，它的定义在 src/core/instance/state.js 中。
+在 Vue 的初始化阶段，`_init` 方法执行的时候，会执行 `initState(vm)` 方法，它的定义在 src/core/instance/state.js 中。
 
 ```js
 export function initState (vm: Component) {
