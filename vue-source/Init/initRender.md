@@ -68,7 +68,7 @@ vm.$slots
 vm.$scopedSlots
 ```
 
-我们把这些属性都整理到 [Vue实例的设计](appendix/Vue%20实例的设计.md) 中。
+我们把这些属性都整理到 [Vue实例的设计](../附录/Vue%20实例的设计.md) 中。
 
 再往下是这段代码：
 
