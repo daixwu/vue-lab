@@ -112,11 +112,11 @@ Vue research laboratory
 
 | Section | Abstract | mindMap |
 | ----- | ----- | ----- |
-| [Vue 编译](vue-source/starter/starter.md) | | |
-| [Vue 编译入口](vue-source/starter/entrance.md) | | |
-| [Vue 编译之解析模板 生成 AST](vue-source/starter/parse.md) | | |
-| [Vue 编译之优化 AST 树](vue-source/starter/optimize.md) | | |
-| [Vue 编译之转换为可执行代码](vue-source/starter/codegen.md) | | |
+| [Vue 编译](vue-source/compile/starter.md) | | |
+| [Vue 编译入口](vue-source/compile/entrance.md) | | |
+| [Vue 编译之解析模板 生成 AST](vue-source/compile/parse.md) | | |
+| [Vue 编译之优化 AST 树](vue-source/compile/optimize.md) | | |
+| [Vue 编译之转换为可执行代码](vue-source/compile/codegen.md) | | |
 
 ## Vue 扩展
 

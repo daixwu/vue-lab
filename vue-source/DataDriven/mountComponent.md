@@ -24,7 +24,7 @@ vm.$el = el
 <div id="foo"></div>
 
 <script>
-const new Vue({
+new Vue({
   el: '#foo',
   template: '<div id="bar"></div>'
 })
