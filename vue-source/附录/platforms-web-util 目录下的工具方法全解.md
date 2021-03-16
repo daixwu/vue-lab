@@ -29,9 +29,9 @@ export function query (el: string | Element): Element {
 * 描述：查询元素
 
 * 参数：
-    * `{String | Element} el` css选择符或者DOM元素
+  * `{String | Element} el` css选择符或者DOM元素
 
-* 返回值：`{Element} el` DOM 元素 
+* 返回值：`{Element} el` DOM 元素
 
 * 源码分析：
 
@@ -80,9 +80,9 @@ el.innerHTML  // 这里的 el.innerHTML 属性就是元素对象的属性
 ```
 
 * 参数：
-    * `{String} tag` 标签名
-    * `{String} type` 标签的 `type` 属性，多用于如 `<input type="button"/>`
-    * `{String} attr` 属性名
+  * `{String} tag` 标签名
+  * `{String} type` 标签的 `type` 属性，多用于如 `<input type="button"/>`
+  * `{String} attr` 属性名
 
 * 返回值：如果给定的属性 `attr` 在标签 `tag` 中要使用元素对象原生的 `prop` 进行绑定，那么就返回 `true`，否则返回 `false`。
 
@@ -111,7 +111,6 @@ return (
 * `option` 标签的 `selected` 属性应该使用元素对象的原生的 `prop` 绑定
 * `input` 标签的 `checked` 属性应该使用元素对象的原生的 `prop` 绑定
 * `video` 标签的 `muted` 属性应该使用元素对象的原生的 `prop` 绑定
-
 
 ## class.js 文件
 
@@ -153,10 +152,6 @@ export const shouldDecodeNewlinesForHref = inBrowser ? getShouldDecode(true) : f
 ```js
 console.log(document.getElementById('link-box').innerHTML)
 ```
-
-上面的代码中我们打印了 `id` 为 `link-box` 的 `innerHTML`，如下图：
-
-![](http://ovjvjtt4l.bkt.clouddn.com/2017-11-15-123008.jpg)
 
 注意，只有在 `chrome` 浏览器下才能获得如上效果，可以发现，在获取的内容中换行符和制表符分别被转换成了 `&#10` 和 `&#9`。实际上，这算是浏览器的怪癖行为。在 `IE` 中，不仅仅是 `a` 标签的 `href` 属性值，任何属性值都存在这个问题。这就会影响 `Vue` 的编译器在对模板进行编译后的结果，导致莫名奇妙的问题，为了避免这些问题 `Vue` 需要知道什么时候要做兼容工作，这就是 `shouldDecodeNewlines` 和 `shouldDecodeNewlinesForHref` 这两个变量的作用。
 
@@ -295,9 +290,8 @@ export function getTagNamespace (tag: string): ?string {
 * 描述：获取元素(标签)的命名空间
 
 * 参数：
-    * `{String} tag` 标签名
+  * `{String} tag` 标签名
 
 * 返回值：`{String | undefined}` 如果一个标签满足 `isSVG(tag)`，则返回 `'svg'`，如果标签为 `math` 则返回 `'math'`，其他情况返回 `undefined`。
-
 
 ## style.js 文件

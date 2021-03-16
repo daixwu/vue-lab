@@ -736,11 +736,15 @@ export function looseEqual (a: any, b: any): boolean {
 * 源码分析：
 
 `looseEqual` 以a、b两个变量为参数，返回 `boolean` 值。
+
 当 `a === b` 时，返回true
+
 ```js
 if (a === b) return true
 ```
+
 否则进入if判断
+
 ```js
 const isObjectA = isObject(a)
 const isObjectB = isObject(b)
@@ -752,7 +756,9 @@ if (isObjectA && isObjectB) {
   return false
 }
 ```
+
 如果a、b均为 `object` 类型的值，进入try catch语句；如果a、b均不为 `object` 类型的值，对两个值调用 `String()` 方法进行比较；如果a、b中一个是 `object` 类型的值，一个不是，直接返回 false。接着对try catch分析
+
 ```js
 try {
   const isArrayA = Array.isArray(a)
@@ -776,6 +782,7 @@ try {
   return false
 }
 ```
+
 对a、b调用 `Array.isArray()` 方法，再次进行判断。如果a、b均为数组，并且a、b的length相等，则对数组的每一个元素再次调用 `looseEqual` 进入递归；如果a、b均不为数组，获取a、b对象的key集合并比较长度，若长度相等，则调用 `looseEqual` 进入递归；如果a、b中一个是数组，一个是对象，直接返回 false。递归会将上述过程再次执行，直到满足某一条件 `return` 终止函数。
 
 ## looseIndexOf
@@ -821,10 +828,12 @@ export function once (fn: Function): Function {
 * 源码分析：
 
 `once` 函数以 `fn` 作为参数并返回一个新函数。`called` 作为一个回调标识符，仅当值为 `false` 时调用
+
 ```js
 if (!called) {
   called = true
   fn.apply(this, arguments)
 }
 ```
+
 且将 `called` 值修改为 `true`。再次调用将不再执行。

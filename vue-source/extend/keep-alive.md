@@ -177,7 +177,7 @@ function pruneCacheEntry (
 }
 ```
 
-除了从缓存中删除外，还要判断如果要删除的缓存并的组件 `tag` 不是当前渲染组件 `tag`，也执行删除缓存的组件实例的 `$destroy` 方法。
+除了从缓存中删除外，还要判断如果要删除的缓存的组件 `tag` 不是当前渲染组件 `tag`，也执行删除缓存的组件实例的 `$destroy` 方法。
 
 最后设置 `vnode.data.keepAlive = true` ，这个作用稍后我们介绍。
 

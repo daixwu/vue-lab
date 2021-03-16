@@ -233,7 +233,9 @@ export function handleError (err: Error, vm: any, info: string) {
 * 描述：用于错误处理
 
 * 参数：
-    * `{Error} err` catch 到的错误对象，我们可以看到 Vue 源码中是这样使用的：
+
+  * `{Error} err` catch 到的错误对象，我们可以看到 Vue 源码中是这样使用的：
+
 ```js
 try {
     ...
@@ -241,8 +243,9 @@ try {
     handleError(e, vm, `${hook} hook`)
 }
 ```
-    * `{any} vm` 这里应该传递 `Vue` 实例
-    * `{String} info` `Vue` 特定的错误提示信息
+
+* `{any} vm` 这里应该传递 `Vue` 实例
+* `{String} info` `Vue` 特定的错误提示信息
 
 * 源码分析
 
@@ -561,7 +564,5 @@ measure('for-measure', 'for-start', 'for-end')
 ```
 
 ## props.js 文件代码说明
-
-
 
 ## next-tick.js 文件代码说明

@@ -179,6 +179,7 @@ export function parseHTML (html, options) {
   let lastTag
   while (html) {
     if (!lastTag || !isPlainTextElement(lastTag)){
+      // 确保即将 parse 的内容不是在纯文本标签里 (script,style,textarea)
       let textEnd = html.indexOf('<')
       if (textEnd === 0) {
          if(matchComment) {
@@ -203,6 +204,7 @@ export function parseHTML (html, options) {
       handleText()
       advance(textLength)
     } else {
+      // 即将 parse 的内容是在纯文本标签里 (script,style,textarea)
        handlePlainTextElement()
        parseEndTag()
     }
@@ -211,6 +213,7 @@ export function parseHTML (html, options) {
 ```
 
 由于 `parseHTML` 的逻辑也非常复杂，因此我也用了伪代码的方式表达，整体来说它的逻辑就是循环解析 `template` ，用正则做各种匹配，对于不同情况分别进行不同的处理，直到整个 template 被解析完毕。
+
 在匹配的过程中会利用 `advance` 函数不断前进整个模板字符串，直到字符串末尾。
 
 ```js
@@ -325,7 +328,7 @@ function parseStartTag () {
 }
 ```
 
-对于开始标签，除了标签名之外，还有一些标签相关的属性。函数先通过正则表达式 `startTagOpen` 匹配到开始标签，然后定义了 `match` 对象，接着循环去匹配开始标签中的属性并添加到 `match.attrs` 中，直到匹配的开始标签的闭合符结束。如果匹配到闭合符，则获取一元斜线符，前进到闭合符尾，并把当前索引赋值给 `match.end`。
+对于开始标签，除了标签名之外，还有一些标签相关的属性。函数先通过正则表达式 `startTagOpen` 匹配到开始标签，然后定义了 `match` 对象，接着循环去匹配开始标签中的属性并添加到 `match.attrs` 中，直到匹配的开始标签的闭合符结束。如果匹配到闭合符，则获取一元斜线符，前进到闭合符尾，并把当前索引赋值给 `match.end`
 
 `parseStartTag` 对开始标签解析拿到 `match` 后，紧接着会执行 `handleStartTag` 对 `match` 做处理：
 

@@ -105,10 +105,16 @@ export const createCompiler = createCompilerCreator(function baseCompile (
   template: string,
   options: CompilerOptions
 ): CompiledResult {
+
+  // 调用 parse 函数将字符串模板解析成抽象语法树(AST)
   const ast = parse(template.trim(), options)
+
+  // 调用 optimize 函数优化 ast
   if (options.optimize !== false) {
     optimize(ast, options)
   }
+
+  // 调用 generate 函数将 ast 编译成渲染函数
   const code = generate(ast, options)
   return {
     ast,

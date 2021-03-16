@@ -215,9 +215,9 @@ if (process.env.NODE_ENV !== 'production' && children.length > 1) {
 
 先从默认插槽中获取 `<transition>` 包裹的子节点，并且判断了子节点的长度，如果长度为 0，则直接返回，否则判断长度如果大于 1，也会在开发环境报警告，因为 `<transition>` 组件是只能包裹一个子节点的。
 
-- 处理 `model`
+- 处理 `mode`
 
-```js
+```j
 const mode: string = this.mode
 
 // warn invalid mode

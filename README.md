@@ -128,3 +128,29 @@ Vue research laboratory
 | [Vue keep-alive 实现原理](vue-source/extend/keep-alive.md) | | |
 | [Vue transition 实现原理](vue-source/extend/tansition.md) | | |
 | [Vue transition-group 实现原理](vue-source/extend/tansition-group.md) | | |
+
+## 附录
+
+[Vue 源码目录设计](vue-source/附录/Vue%20源码目录设计.md)
+
+[Vue 构造函数整理-全局API](vue-source/附录/Vue%20构造函数整理-全局API.md)
+
+[Vue 构造函数整理-原型](vue-source/附录/Vue%20构造函数整理-原型.md)\
+
+[Vue 实例的设计](vue-source/附录/Vue%20实例的设计.md)
+
+[core/util 目录下的工具方法全解](vue-source/附录/core-util%20目录下的工具方法全解.md)
+
+[shared/util.js 文件工具方法全解](vue-source/附录/shared-util.js%20文件工具方法全解.md)
+
+[platforms/web/util 目录下的工具方法全解](vue-source/附录/platforms-web-util%20目录下的工具方法全解.md)
+
+## Vue-Router
+
+[Vue-Router 开篇](vue-source/vue-router/starter.md)
+
+[VueRouter 对象](vue-source/vue-router/router.md)
+
+[matcher](vue-source/vue-router/matcher.md)
+
+[路径切换](vue-source/vue-router/transition-to.md)

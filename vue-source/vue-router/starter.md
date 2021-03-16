@@ -23,7 +23,6 @@
 ```js
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import App from './App'
 
 Vue.use(VueRouter)
 
@@ -53,9 +52,6 @@ const router = new VueRouter({
 // 从而让整个应用都有路由功能
 const app = new Vue({
   el: '#app',
-  render(h) {
-    return h(App)
-  },
   router
 })
 ```
